@@ -1,0 +1,242 @@
+/* main.css — Variables globales del sistema de diseño, reset y tipografía.
+   Es el primer CSS cargado en todas las páginas del juego. */
+
+/* === IMPORTAR FUENTES DE GOOGLE === */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+/* === VARIABLES DE DISEÑO === */
+:root {
+  /* Colores base */
+  --negro-profundo:    #050510;
+  --negro-medio:       #0a0a1a;
+  --gris-oscuro:       #1a1a2e;
+  --gris-medio:        #16213e;
+
+  /* Neón primario */
+  --cyan-electrico:    #00D4FF;
+  --cyan-oscuro:       #0088AA;
+
+  /* Neón secundario */
+  --magenta-neon:      #FF2D78;
+  --magenta-oscuro:    #AA1050;
+
+  /* Acentos */
+  --rojo-intenso:      #FF1744;
+  --verde-electrico:   #39FF14;
+  --naranja-neon:      #FF8C00;
+  --amarillo-energia:  #FFD700;
+  --blanco-brillante:  #F0F8FF;
+  --blanco-neon:       #E8F4FF;
+
+  /* Efectos de glow */
+  --glow-cyan:    0 0 5px #00D4FF, 0 0 15px #00D4FF, 0 0 35px #00D4FF80;
+  --glow-magenta: 0 0 5px #FF2D78, 0 0 15px #FF2D78, 0 0 35px #FF2D7880;
+  --glow-verde:   0 0 5px #39FF14, 0 0 15px #39FF14, 0 0 30px #39FF1480;
+  --glow-rojo:    0 0 5px #FF1744, 0 0 15px #FF1744, 0 0 30px #FF174480;
+  --glow-blanco:  0 0 5px #FFFFFF, 0 0 10px #F0F8FF, 0 0 25px #E8F4FF60;
+  --glow-naranja: 0 0 5px #FF8C00, 0 0 15px #FF8C00, 0 0 30px #FF8C0080;
+
+  /* Tipografía */
+  --fuente-tron:  'Orbitron', monospace;
+  --fuente-ui:    'Share Tech Mono', monospace;
+  --fuente-body:  'Rajdhani', sans-serif;
+
+  /* Bordes */
+  --borde-neon-cyan:    1px solid rgba(0, 212, 255, 0.4);
+  --borde-neon-magenta: 1px solid rgba(255, 45, 120, 0.4);
+  --borde-panel:        1px solid rgba(0, 212, 255, 0.15);
+
+  /* Transiciones */
+  --transicion-rapida: 0.15s ease;
+  --transicion-media:  0.3s ease;
+  --transicion-lenta:  0.6s ease;
+}
+
+/* === RESET GLOBAL === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--negro-profundo);
+  color: var(--blanco-neon);
+  font-family: var(--fuente-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Scanlines superpuestas sobre toda la pantalla */
+  position: relative;
+}
+
+/* === EFECTO SCANLINES === */
+/* Superposición de líneas horizontales sutiles para efecto de pantalla retro */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* === NAVBAR COMPARTIDA === */
+.navbar {
+  background-color: var(--negro-medio) !important;
+  border-bottom: var(--borde-neon-cyan);
+  box-shadow: 0 2px 20px rgba(0, 212, 255, 0.15);
+  padding: 12px 20px;
+  z-index: 1000;
+}
+
+.navbar-brand {
+  font-family: var(--fuente-tron);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cyan-electrico) !important;
+  text-shadow: var(--glow-cyan);
+  letter-spacing: 2px;
+}
+
+.nav-link {
+  font-family: var(--fuente-body);
+  font-weight: 600;
+  color: var(--blanco-neon) !important;
+  letter-spacing: 1px;
+  transition: color var(--transicion-rapida), text-shadow var(--transicion-rapida);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--cyan-electrico) !important;
+  text-shadow: var(--glow-cyan);
+}
+
+.navbar-toggler {
+  border-color: var(--cyan-electrico);
+  box-shadow: none !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 212, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* === BOTONES GLOBALES === */
+.boton-neon {
+  font-family: var(--fuente-tron);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 1px solid var(--cyan-electrico);
+  background: transparent;
+  color: var(--cyan-electrico);
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: all var(--transicion-media);
+  animation: pulsarNeon 2s ease-in-out infinite;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.boton-neon:hover {
+  background: rgba(0, 212, 255, 0.15);
+  box-shadow: var(--glow-cyan);
+  color: var(--blanco-brillante);
+  text-shadow: var(--glow-blanco);
+  animation: none;
+}
+
+.boton-neon-magenta {
+  border-color: var(--magenta-neon);
+  color: var(--magenta-neon);
+  animation: pulsarNeonMagenta 2s ease-in-out infinite;
+}
+
+.boton-neon-magenta:hover {
+  background: rgba(255, 45, 120, 0.15);
+  box-shadow: var(--glow-magenta);
+  color: var(--blanco-brillante);
+  animation: none;
+}
+
+.boton-neon-rojo {
+  border-color: var(--rojo-intenso);
+  color: var(--rojo-intenso);
+}
+
+.boton-neon-rojo:hover {
+  background: rgba(255, 23, 68, 0.15);
+  box-shadow: var(--glow-rojo);
+}
+
+/* === CARDS / PANELES === */
+.panel-neon {
+  background: var(--negro-medio);
+  border: var(--borde-panel);
+  border-radius: 4px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-neon::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan-electrico), transparent);
+}
+
+/* === SCROLLBAR PERSONALIZADA === */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--negro-medio); }
+::-webkit-scrollbar-thumb {
+  background: var(--cyan-oscuro);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-electrico); }
+
+/* === BOTÓN VOLVER === */
+.boton-volver {
+  font-family: var(--fuente-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cyan-oscuro);
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: color var(--transicion-rapida);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.boton-volver:hover {
+  color: var(--cyan-electrico);
+  text-shadow: var(--glow-cyan);
+}
+
+/* === UTILIDADES DE TEXTO === */
+.texto-cyan    { color: var(--cyan-electrico); }
+.texto-magenta { color: var(--magenta-neon); }
+.texto-verde   { color: var(--verde-electrico); }
+.texto-naranja { color: var(--naranja-neon); }
+.texto-tron    { font-family: var(--fuente-tron); }
+.texto-ui      { font-family: var(--fuente-ui); }
+.glow-cyan     { text-shadow: var(--glow-cyan); }
+.glow-magenta  { text-shadow: var(--glow-magenta); }

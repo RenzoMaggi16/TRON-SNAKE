@@ -1,0 +1,223 @@
+/* efectos.css — Todos los keyframes, animaciones y efectos visuales del juego.
+   Este archivo es compartido por todas las páginas. */
+
+/* === GLITCH DEL TÍTULO PRINCIPAL === */
+/* Distorsión digital que ocurre ~10% del tiempo para no saturar */
+@keyframes glitch {
+  0%, 88%, 100% {
+    transform: translate(0);
+    clip-path: none;
+    opacity: 1;
+  }
+  89% {
+    transform: translate(-3px, 1px) skew(-1deg);
+    clip-path: inset(20% 0 60% 0);
+    color: var(--magenta-neon);
+  }
+  91% {
+    transform: translate(3px, -1px) skew(1deg);
+    clip-path: inset(50% 0 20% 0);
+    color: var(--cyan-electrico);
+  }
+  93% {
+    transform: translate(-2px, 2px);
+    clip-path: inset(70% 0 10% 0);
+    color: var(--blanco-brillante);
+  }
+  95% {
+    transform: translate(2px, -2px);
+    clip-path: none;
+  }
+  97% {
+    transform: translate(0);
+    clip-path: none;
+  }
+}
+
+.titulo-glitch {
+  animation: glitch 8s ease-in-out infinite;
+  position: relative;
+}
+
+/* Pseudo-elemento para la capa de "ghost" del glitch */
+.titulo-glitch::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  color: var(--magenta-neon);
+  clip-path: inset(40% 0 50% 0);
+  animation: glitchAntes 8s ease-in-out infinite;
+  opacity: 0;
+}
+
+.titulo-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  color: var(--cyan-electrico);
+  clip-path: inset(60% 0 30% 0);
+  animation: glitchDespues 8s ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes glitchAntes {
+  0%, 88%, 100% { opacity: 0; transform: translate(0); }
+  89% { opacity: 1; transform: translate(3px, 0); }
+  91% { opacity: 0; }
+}
+
+@keyframes glitchDespues {
+  0%, 88%, 100% { opacity: 0; transform: translate(0); }
+  92% { opacity: 1; transform: translate(-3px, 0); }
+  94% { opacity: 0; }
+}
+
+/* === PULSO DE NEÓN EN BOTONES === */
+@keyframes pulsarNeon {
+  0%, 100% { box-shadow: var(--glow-cyan); }
+  50%       { box-shadow: 0 0 3px #00D4FF, 0 0 8px #00D4FF; }
+}
+
+@keyframes pulsarNeonMagenta {
+  0%, 100% { box-shadow: var(--glow-magenta); }
+  50%       { box-shadow: 0 0 3px #FF2D78, 0 0 8px #FF2D78; }
+}
+
+@keyframes pulsarNeonVerde {
+  0%, 100% { box-shadow: var(--glow-verde); }
+  50%       { box-shadow: 0 0 3px #39FF14, 0 0 8px #39FF14; }
+}
+
+/* === GRID ANIMADO DEL FONDO === */
+/* Simula movimiento hacia el jugador como universo TRON */
+@keyframes moverGrid {
+  from { background-position: 0 0; }
+  to   { background-position: 0 40px; }
+}
+
+@keyframes moverGridRapido {
+  from { background-position: 0 0; }
+  to   { background-position: 0 60px; }
+}
+
+.fondo-grid {
+  background-color: var(--negro-profundo);
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: moverGrid 3s linear infinite;
+}
+
+/* === ENTRADA Y SALIDA DE ELEMENTOS === */
+@keyframes entrarDesdeAbajo {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes entrarDesdeArriba {
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes entrarDesdeIzquierda {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes entrarDesdeDerecha {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes desaparecer {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.9); }
+}
+
+/* === PARPADEO (JUGADOR INVULNERABLE) === */
+@keyframes parpadear {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.parpadeando {
+  animation: parpadear 0.2s ease-in-out infinite;
+}
+
+/* === PULSO DE ORBE === */
+@keyframes pulsarOrbe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.15); opacity: 0.8; }
+}
+
+/* === ROTACIÓN CONTINUA (PORTALES, ESCUDO) === */
+@keyframes girar {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes girarInverso {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+
+/* === COUNTDOWN INICIO === */
+@keyframes contadorPulso {
+  0%   { transform: scale(0.5); opacity: 0; }
+  30%  { transform: scale(1.3); opacity: 1; }
+  70%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* === PUNTAJE FLOTANTE === */
+@keyframes puntajeFlotante {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.7); }
+}
+
+/* === DESTELLAR PANTALLA (COLISIÓN) === */
+@keyframes destelloPantalla {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* === LÍNEA DE NEÓN (DECORATIVA) === */
+@keyframes trazarLinea {
+  from { width: 0; opacity: 0; }
+  to   { width: 100%; opacity: 1; }
+}
+
+/* === TEXTO "LISTO" EN HUD === */
+@keyframes listoParpadeo {
+  0%, 100% { opacity: 1; color: var(--verde-electrico); }
+  50%       { opacity: 0.4; color: var(--cyan-electrico); }
+}
+
+/* === BARRA TURBO BAJA === */
+@keyframes turboBajo {
+  0%, 100% { box-shadow: 0 0 4px var(--rojo-intenso); }
+  50%       { box-shadow: 0 0 12px var(--rojo-intenso); }
+}
+
+/* === ANIMACIÓN DE VICTORIA === */
+@keyframes victoria {
+  0%   { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+  30%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  60%  { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* === CLASES DE UTILIDAD PARA ANIMACIONES === */
+.animar-entrada     { animation: entrarDesdeAbajo 0.5s ease forwards; }
+.animar-entrada-top { animation: entrarDesdeArriba 0.5s ease forwards; }
+.animar-aparecer    { animation: aparecer 0.4s ease forwards; }
+.animar-girar       { animation: girar 2s linear infinite; }
+.animar-girar-inv   { animation: girarInverso 3s linear infinite; }
+.animar-victoria    { animation: victoria 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }

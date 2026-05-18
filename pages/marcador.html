@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marcador Global — ARENA TRON: Ciclos de Luz</title>
+  <meta name="description" content="Top 20 puntajes globales de ARENA TRON: Ciclos de Luz. Compite por el primer lugar.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/efectos.css">
+  <style>
+    body { padding-top: 70px; }
+    .seccion-marcador {
+      padding: 40px 0 80px;
+      min-height: 100vh;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .tabla-marcador {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--fuente-ui);
+    }
+    .tabla-marcador th {
+      background: var(--negro-medio);
+      color: var(--cyan-electrico);
+      padding: 12px 16px;
+      text-align: left;
+      letter-spacing: 3px;
+      font-size: 0.7rem;
+      border-bottom: 1px solid rgba(0,212,255,0.3);
+      text-transform: uppercase;
+    }
+    .tabla-marcador td {
+      padding: 12px 16px;
+      color: var(--blanco-neon);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.85rem;
+    }
+    .tabla-marcador tr:hover td { background: rgba(0,212,255,0.04); }
+    .posicion-1 td { color: var(--amarillo-energia) !important; }
+    .posicion-2 td { color: rgba(192,192,192,0.9) !important; }
+    .posicion-3 td { color: rgba(205,127,50,0.9) !important; }
+    .medalla-pos {
+      font-size: 1.1rem;
+      width: 32px;
+      display: inline-block;
+      text-align: center;
+    }
+    .puntaje-tabla {
+      font-size: 1rem;
+      letter-spacing: 3px;
+    }
+    .sin-records {
+      text-align: center;
+      padding: 60px 20px;
+      font-family: var(--fuente-ui);
+      color: rgba(255,255,255,0.3);
+    }
+    .fila-record {
+      animation: entrarDesdeAbajo 0.4s ease both;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="/">⬡ ARENA TRON</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto gap-2">
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/juego">Juego</a></li>
+          <li class="nav-item"><a class="nav-link" href="/instrucciones">Instrucciones</a></li>
+          <li class="nav-item"><a class="nav-link" href="/jugadores">Jugadores</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/marcador">Marcador</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="seccion-marcador">
+    <div class="container">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/" class="boton-volver">← Volver al Inicio</a>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <h1 class="texto-tron glow-cyan mb-0" style="font-size:clamp(1.5rem,4vw,2.5rem);letter-spacing:4px;">
+          🏆 Marcador Global
+        </h1>
+        <button class="boton-neon boton-neon-rojo" id="botonLimpiarRecords" style="font-size:0.7rem;padding:10px 24px;">
+          🗑 Limpiar Récords
+        </button>
+      </div>
+
+      <div class="panel-neon">
+        <div class="table-responsive">
+          <table class="tabla-marcador" aria-label="Tabla de los mejores puntajes">
+            <thead>
+              <tr>
+                <th>Pos.</th>
+                <th>Piloto</th>
+                <th>Puntaje</th>
+                <th>Nivel</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoMarcador">
+              <tr>
+                <td colspan="5">
+                  <div class="sin-records" id="mensajeSinRecords">
+                    <p style="font-size:2rem;">⬡</p>
+                    <p>No hay récords registrados todavía.</p>
+                    <p>¡Juega una partida para aparecer aquí!</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;font-family:var(--fuente-ui);font-size:0.7rem;color:rgba(0,212,255,0.3);text-align:center;letter-spacing:2px;">
+        TOP 20 PUNTAJES GLOBALES — GUARDADOS LOCALMENTE
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de confirmación para limpiar -->
+  <div id="modalLimpiar" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+       background:rgba(5,5,16,0.9);z-index:9000;align-items:center;justify-content:center;"
+       role="dialog" aria-modal="true" aria-label="Confirmar limpieza de récords">
+    <div class="panel-neon" style="max-width:360px;width:90%;text-align:center;border-color:rgba(255,23,68,0.4);">
+      <p style="font-family:var(--fuente-tron);font-size:0.85rem;color:var(--rojo-intenso);letter-spacing:2px;margin-bottom:12px;">
+        ¿LIMPIAR TODOS LOS RÉCORDS?
+      </p>
+      <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:20px;">
+        Esta acción eliminará todos los puntajes del marcador y no se puede deshacer.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button class="boton-neon boton-neon-rojo" id="botonConfirmarLimpiar">🗑 Limpiar Todo</button>
+        <button class="boton-neon" id="botonCancelarLimpiar">← Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/scripts/utilidades.js"></script>
+  <script src="/scripts/usuarios.js"></script>
+  <script>
+    // Cerrar hamburguesa
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        const nav = document.querySelector('.navbar-collapse');
+        if (nav.classList.contains('show')) new bootstrap.Collapse(nav).hide();
+      });
+    });
+
+    // Medallas para los primeros lugares
+    function obtenerMedalla(posicion) {
+      if (posicion === 1) return '🥇';
+      if (posicion === 2) return '🥈';
+      if (posicion === 3) return '🥉';
+      return posicion;
+    }
+
+    // Formatear fecha a español
+    function formatearFecha(fechaISO) {
+      try {
+        return new Date(fechaISO).toLocaleDateString('es-ES', {
+          day: '2-digit', month: '2-digit', year: '2-digit'
+        });
+      } catch { return '—'; }
+    }
+
+    // Renderizar tabla de récords
+    function renderizarMarcador() {
+      const records = obtenerRecords();
+      const cuerpo  = document.getElementById('cuerpoMarcador');
+      cuerpo.innerHTML = '';
+
+      if (records.length === 0) {
+        cuerpo.innerHTML = `
+          <tr>
+            <td colspan="5">
+              <div class="sin-records">
+                <p style="font-size:2rem;">⬡</p>
+                <p>No hay récords registrados todavía.</p>
+                <p>¡Juega una partida para aparecer aquí!</p>
+              </div>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      records.forEach((record, index) => {
+        const pos   = index + 1;
+        const fila  = document.createElement('tr');
+        fila.className = `fila-record ${pos <= 3 ? `posicion-${pos}` : ''}`;
+        fila.style.animationDelay = `${index * 0.05}s`;
+
+        fila.innerHTML = `
+          <td><span class="medalla-pos">${obtenerMedalla(pos)}</span></td>
+          <td>
+            <span style="font-family:var(--fuente-tron);font-size:0.8rem;letter-spacing:1px;
+                         ${record.color ? `color:${record.color}` : ''}">
+              ${record.nombre || 'INVITADO'}
+            </span>
+          </td>
+          <td><span class="puntaje-tabla">${String(record.puntaje || 0).padStart(6,'0')}</span></td>
+          <td>
+            <span style="font-family:var(--fuente-tron);font-size:0.7rem;color:var(--cyan-oscuro);">
+              Nv. ${record.nivel || 1}
+            </span>
+          </td>
+          <td style="color:rgba(255,255,255,0.4);font-size:0.75rem;">
+            ${formatearFecha(record.fecha)}
+          </td>
+        `;
+        cuerpo.appendChild(fila);
+      });
+    }
+
+    // Limpiar récords
+    document.getElementById('botonLimpiarRecords').addEventListener('click', () => {
+      document.getElementById('modalLimpiar').style.display = 'flex';
+    });
+
+    document.getElementById('botonConfirmarLimpiar').addEventListener('click', () => {
+      limpiarRecords();
+      renderizarMarcador();
+      document.getElementById('modalLimpiar').style.display = 'none';
+    });
+
+    document.getElementById('botonCancelarLimpiar').addEventListener('click', () => {
+      document.getElementById('modalLimpiar').style.display = 'none';
+    });
+
+    // Inicializar
+    renderizarMarcador();
+  </script>
+</body>
+</html>

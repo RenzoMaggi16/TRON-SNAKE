@@ -1,0 +1,258 @@
+/* menu.css — Estilos específicos del menú principal y pantalla de inicio. */
+
+/* === SECCIÓN HERO DEL MENÚ === */
+.seccion-menu {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 80px 20px 40px;
+}
+
+/* Canvas de partículas flotantes de fondo */
+#canvasParticulas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grid animado superpuesto */
+.overlay-grid {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: moverGrid 4s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gradiente radial central para dar profundidad */
+.overlay-vignette {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(5, 5, 16, 0.7) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Contenido principal del menú (encima de los overlays) */
+.contenido-menu {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* === TÍTULO PRINCIPAL === */
+.titulo-arena {
+  font-family: var(--fuente-tron);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  color: var(--cyan-electrico);
+  text-shadow: var(--glow-cyan);
+  letter-spacing: 6px;
+  line-height: 1;
+  margin-bottom: 8px;
+  animation: glitch 8s ease-in-out infinite;
+  position: relative;
+}
+
+.titulo-arena::before,
+.titulo-arena::after {
+  content: 'ARENA TRON';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+}
+
+.titulo-arena::before {
+  color: var(--magenta-neon);
+  animation: glitchAntes 8s ease-in-out infinite;
+  opacity: 0;
+}
+
+.titulo-arena::after {
+  color: var(--cyan-electrico);
+  opacity: 0;
+  animation: glitchDespues 8s ease-in-out infinite;
+}
+
+.subtitulo-menu {
+  font-family: var(--fuente-ui);
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  color: var(--magenta-neon);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  text-shadow: var(--glow-magenta);
+}
+
+/* Línea separadora neón */
+.separador-neon {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-electrico), transparent);
+  margin: 20px auto;
+  box-shadow: var(--glow-cyan);
+}
+
+/* === BOTONES DEL MENÚ === */
+.grupo-botones-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 32px;
+  align-items: center;
+}
+
+.boton-menu {
+  font-family: var(--fuente-tron);
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 16px 48px;
+  border: 1px solid var(--cyan-electrico);
+  background: rgba(0, 212, 255, 0.05);
+  color: var(--cyan-electrico);
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  min-width: 300px;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  transition: all var(--transicion-media);
+  animation: pulsarNeon 2.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.boton-menu::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.boton-menu:hover::before {
+  left: 100%;
+}
+
+.boton-menu:hover {
+  background: rgba(0, 212, 255, 0.15);
+  box-shadow: var(--glow-cyan), inset 0 0 20px rgba(0, 212, 255, 0.05);
+  color: var(--blanco-brillante);
+  text-shadow: var(--glow-blanco);
+  animation: none;
+  transform: translateX(4px);
+}
+
+.boton-menu-secundario {
+  font-size: clamp(0.65rem, 1.3vw, 0.78rem);
+  padding: 12px 36px;
+  min-width: 260px;
+  border-color: rgba(0, 212, 255, 0.4);
+  color: rgba(0, 212, 255, 0.7);
+  animation-duration: 3s;
+}
+
+.icono-boton {
+  font-size: 1.1em;
+}
+
+/* === TARJETAS DE PERFILES ACTIVOS === */
+.seccion-perfiles-activos {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.etiqueta-perfiles {
+  font-family: var(--fuente-ui);
+  font-size: 0.7rem;
+  color: var(--cyan-oscuro);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.contenedor-perfiles {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tarjeta-perfil-mini {
+  background: var(--negro-medio);
+  border: var(--borde-panel);
+  border-radius: 4px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.indicador-color-perfil {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nombre-perfil-mini {
+  font-family: var(--fuente-ui);
+  font-size: 0.85rem;
+  color: var(--blanco-neon);
+}
+
+.victorias-perfil-mini {
+  font-family: var(--fuente-ui);
+  font-size: 0.7rem;
+  color: var(--cyan-oscuro);
+}
+
+/* === FOOTER DEL MENÚ === */
+.footer-menu {
+  position: relative;
+  z-index: 10;
+  margin-top: 40px;
+  font-family: var(--fuente-ui);
+  font-size: 0.65rem;
+  color: rgba(0, 212, 255, 0.2);
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .boton-menu {
+    min-width: 90vw;
+    padding: 14px 24px;
+  }
+
+  .boton-menu-secundario {
+    min-width: 80vw;
+  }
+
+  .titulo-arena {
+    letter-spacing: 2px;
+  }
+}

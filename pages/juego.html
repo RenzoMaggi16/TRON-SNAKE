@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARENA TRON — Juego en Curso</title>
+  <meta name="description" content="Pantalla de juego de ARENA TRON: Ciclos de Luz. 1 vs 1 en tiempo real.">
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <!-- Fuentes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Estilos del proyecto -->
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/efectos.css">
+  <link rel="stylesheet" href="/styles/juego.css">
+  <style>
+    body { overflow: hidden; margin: 0; padding: 0; }
+    body::after { z-index: 99999; }
+  </style>
+</head>
+<body>
+
+  <!-- Wrapper principal del juego -->
+  <div class="wrapper-juego" id="wrapperJuego">
+
+    <!-- Canvas principal del arena -->
+    <canvas id="arenaCanvas" role="img" aria-label="Arena del juego TRON"></canvas>
+
+    <!-- === HUD OVERLAY === -->
+    <div id="hudOverlay" aria-live="polite" aria-label="Estado del juego">
+      <div class="hud-fila-superior">
+
+        <!-- HUD Jugador 1 (izquierda) -->
+        <div class="hud-jugador" id="hudJugador1">
+          <div class="hud-nombre texto-cyan" id="hud1Nombre">CICLO AZUL</div>
+
+          <div class="hud-barra-contenedor">
+            <span class="hud-barra-label">TURBO</span>
+            <div class="hud-barra hud-barra-turbo" id="hud1BarraTurboContenedor">
+              <div class="hud-barra-relleno" id="hud1Turbo" style="width:100%"></div>
+            </div>
+          </div>
+
+          <div class="hud-vidas" id="hud1Vidas" aria-label="Vidas del jugador 1">
+            <span class="hud-vida-icono texto-cyan" id="hud1Vida1" aria-label="Vida 1">◈</span>
+            <span class="hud-vida-icono texto-cyan" id="hud1Vida2" aria-label="Vida 2">◈</span>
+            <span class="hud-vida-icono texto-cyan" id="hud1Vida3" aria-label="Vida 3">◈</span>
+          </div>
+
+          <div class="hud-puntaje texto-cyan texto-ui" id="hud1Puntaje" aria-label="Puntaje jugador 1">000000</div>
+
+          <div class="hud-habilidad">
+            <span class="hud-habilidad-icono" id="hud1HabIcono">⚡</span>
+            <span class="hud-habilidad-nombre texto-ui" id="hud1HabNombre">Pulso EMP</span>
+            <span class="hud-habilidad-estado listo texto-ui" id="hud1HabEstado">LISTO</span>
+          </div>
+        </div>
+
+        <!-- Centro del HUD -->
+        <div class="hud-centro">
+          <div class="hud-nivel-texto" id="hudNivelTexto">SECTOR INICIAL</div>
+          <div class="hud-temporizador" id="hudTemporizador">03:00</div>
+        </div>
+
+        <!-- HUD Jugador 2 (derecha) -->
+        <div class="hud-jugador hud-jugador-2" id="hudJugador2">
+          <div class="hud-nombre texto-magenta" id="hud2Nombre">CICLO ROJO</div>
+
+          <div class="hud-barra-contenedor">
+            <span class="hud-barra-label">TURBO</span>
+            <div class="hud-barra hud-barra-turbo" id="hud2BarraTurboContenedor">
+              <div class="hud-barra-relleno" id="hud2Turbo" style="width:100%; background: linear-gradient(90deg, #AA1050, #FF2D78)"></div>
+            </div>
+          </div>
+
+          <div class="hud-vidas" id="hud2Vidas" aria-label="Vidas del jugador 2">
+            <span class="hud-vida-icono texto-magenta" id="hud2Vida1" aria-label="Vida 1">◈</span>
+            <span class="hud-vida-icono texto-magenta" id="hud2Vida2" aria-label="Vida 2">◈</span>
+            <span class="hud-vida-icono texto-magenta" id="hud2Vida3" aria-label="Vida 3">◈</span>
+          </div>
+
+          <div class="hud-puntaje texto-magenta texto-ui" id="hud2Puntaje" aria-label="Puntaje jugador 2">000000</div>
+
+          <div class="hud-habilidad">
+            <span class="hud-habilidad-icono" id="hud2HabIcono">✂</span>
+            <span class="hud-habilidad-nombre texto-ui" id="hud2HabNombre">Cortador</span>
+            <span class="hud-habilidad-estado listo texto-ui" id="hud2HabEstado">LISTO</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Contenedor para puntajes flotantes -->
+    <div id="contenedorFlotantes" aria-hidden="true"></div>
+
+    <!-- === OVERLAY DE CUENTA REGRESIVA === -->
+    <div id="overlayContador" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- === OVERLAY DE PAUSA === -->
+    <div id="overlayPausa" role="dialog" aria-modal="true" aria-label="Juego pausado">
+      <h2 class="titulo-pausa">PAUSA</h2>
+      <p class="pausa-instruccion">Presiona ESC para continuar</p>
+      <div class="pausa-botones">
+        <button class="boton-neon" id="botonContinuar" onclick="continuarJuego()">▶ Continuar</button>
+        <button class="boton-neon boton-neon-rojo" id="botonAbandonar" onclick="abandonarPartida()">✕ Abandonar Partida</button>
+      </div>
+    </div>
+
+    <!-- === OVERLAY DE FIN DE PARTIDA === -->
+    <div id="overlayFinPartida" role="dialog" aria-modal="true" aria-label="Fin de la partida">
+      <p class="titulo-ganador texto-ui" id="textoGanador">¡VICTORIA!</p>
+      <h2 class="nombre-ganador" id="nombreGanador">CICLO AZUL</h2>
+
+      <div class="estadisticas-fin">
+        <div>
+          <div class="stat-fin-label">Puntaje J1</div>
+          <div class="stat-fin-valor texto-cyan texto-ui" id="statPuntaje1">000000</div>
+        </div>
+        <div>
+          <div class="stat-fin-label">Puntaje J2</div>
+          <div class="stat-fin-valor texto-magenta texto-ui" id="statPuntaje2">000000</div>
+        </div>
+        <div>
+          <div class="stat-fin-label">Tiempo</div>
+          <div class="stat-fin-valor texto-ui" id="statTiempo">--:--</div>
+        </div>
+        <div>
+          <div class="stat-fin-label">Nivel</div>
+          <div class="stat-fin-valor texto-ui" id="statNivel">1</div>
+        </div>
+      </div>
+
+      <div class="fin-botones">
+        <button class="boton-neon" id="botonJugarDeNuevo" onclick="reiniciarJuego()">↺ Jugar de Nuevo</button>
+        <button class="boton-neon boton-neon-magenta" id="botonVerMarcador" onclick="window.location.href='/marcador'">🏆 Ver Marcador</button>
+        <button class="boton-neon" id="botonVolverMenu" onclick="window.location.href='/'">⬡ Menú Principal</button>
+      </div>
+    </div>
+
+    <!-- === OVERLAY DE SELECCIÓN INICIAL === -->
+    <div id="overlayInicio" role="dialog" aria-modal="true" aria-label="Configuración de partida">
+
+      <!-- Navbar simplificada dentro del overlay -->
+      <div style="position:absolute;top:0;left:0;right:0;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,212,255,0.1);">
+        <span style="font-family:var(--fuente-tron);color:var(--cyan-electrico);font-size:0.9rem;letter-spacing:2px;">⬡ ARENA TRON</span>
+        <a href="/" class="boton-volver" style="pointer-events:all;">← Volver al Inicio</a>
+      </div>
+
+      <h1 class="titulo-inicio-juego">Configurar Partida</h1>
+
+      <!-- Selección de motos -->
+      <div class="contenedor-seleccion">
+
+        <!-- Panel Jugador 1 -->
+        <div class="panel-jugador-seleccion jugador-1">
+          <h2 class="titulo-panel-jugador texto-cyan">Jugador 1</h2>
+
+          <!-- Selector de perfil -->
+          <select class="select-perfil" id="selectPerfil1" aria-label="Perfil del Jugador 1">
+            <option value="">— Jugar como Invitado —</option>
+          </select>
+
+          <!-- Grid de motos -->
+          <div class="grid-motos" id="gridMotosJ1">
+            <div class="opcion-moto seleccionada" data-moto="azul" data-jugador="1"
+                 style="border-color:#00D4FF;" tabindex="0" role="button"
+                 aria-pressed="true" aria-label="Ciclo Azul">
+              <div class="opcion-moto-nombre" style="color:#00D4FF;">Ciclo Azul</div>
+              <div class="opcion-moto-habilidad">Pulso EMP</div>
+            </div>
+            <div class="opcion-moto" data-moto="rojo" data-jugador="1"
+                 style="border-color:#FF2D78;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Rojo">
+              <div class="opcion-moto-nombre" style="color:#FF2D78;">Ciclo Rojo</div>
+              <div class="opcion-moto-habilidad">Cortador</div>
+            </div>
+            <div class="opcion-moto" data-moto="naranja" data-jugador="1"
+                 style="border-color:#FF8C00;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Naranja">
+              <div class="opcion-moto-nombre" style="color:#FF8C00;">Ciclo Naranja</div>
+              <div class="opcion-moto-habilidad">Señuelo</div>
+            </div>
+            <div class="opcion-moto" data-moto="verde" data-jugador="1"
+                 style="border-color:#39FF14;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Verde">
+              <div class="opcion-moto-nombre" style="color:#39FF14;">Ciclo Verde</div>
+              <div class="opcion-moto-habilidad">Escudo</div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--fuente-ui);font-size:0.65rem;color:rgba(0,212,255,0.5);text-align:center;letter-spacing:1px;">
+            Controles: W A S D | Q: Turbo | E: Salto | R: Habilidad
+          </div>
+        </div>
+
+        <!-- VS separador -->
+        <div class="separador-vs">VS</div>
+
+        <!-- Panel Jugador 2 -->
+        <div class="panel-jugador-seleccion jugador-2">
+          <h2 class="titulo-panel-jugador texto-magenta">Jugador 2</h2>
+
+          <!-- Selector de perfil -->
+          <select class="select-perfil" id="selectPerfil2" aria-label="Perfil del Jugador 2">
+            <option value="">— Jugar como Invitado —</option>
+          </select>
+
+          <!-- Grid de motos -->
+          <div class="grid-motos" id="gridMotosJ2">
+            <div class="opcion-moto" data-moto="azul" data-jugador="2"
+                 style="border-color:#00D4FF;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Azul">
+              <div class="opcion-moto-nombre" style="color:#00D4FF;">Ciclo Azul</div>
+              <div class="opcion-moto-habilidad">Pulso EMP</div>
+            </div>
+            <div class="opcion-moto" data-moto="rojo" data-jugador="2"
+                 style="border-color:#FF2D78;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Rojo">
+              <div class="opcion-moto-nombre" style="color:#FF2D78;">Ciclo Rojo</div>
+              <div class="opcion-moto-habilidad">Cortador</div>
+            </div>
+            <div class="opcion-moto seleccionada" data-moto="naranja" data-jugador="2"
+                 style="border-color:#FF8C00;" tabindex="0" role="button"
+                 aria-pressed="true" aria-label="Ciclo Naranja">
+              <div class="opcion-moto-nombre" style="color:#FF8C00;">Ciclo Naranja</div>
+              <div class="opcion-moto-habilidad">Señuelo</div>
+            </div>
+            <div class="opcion-moto" data-moto="verde" data-jugador="2"
+                 style="border-color:#39FF14;" tabindex="0" role="button"
+                 aria-pressed="false" aria-label="Ciclo Verde">
+              <div class="opcion-moto-nombre" style="color:#39FF14;">Ciclo Verde</div>
+              <div class="opcion-moto-habilidad">Escudo</div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--fuente-ui);font-size:0.65rem;color:rgba(255,45,120,0.5);text-align:center;letter-spacing:1px;">
+            Controles: ↑ ↓ ← → | Num0: Turbo | Num.: Salto | NumEnter: Habilidad
+          </div>
+        </div>
+      </div>
+
+      <!-- Selección de nivel -->
+      <div class="seccion-nivel">
+        <h3 class="titulo-seccion-nivel">Seleccionar Nivel</h3>
+        <div class="grid-niveles" id="gridNiveles">
+          <div class="opcion-nivel seleccionado" data-nivel="1" tabindex="0" role="button" aria-pressed="true">
+            <div class="opcion-nivel-num">1</div>
+            <span class="opcion-nivel-nombre">Sector Inicial</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="2" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num">2</div>
+            <span class="opcion-nivel-nombre">Detritos</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="3" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num">3</div>
+            <span class="opcion-nivel-nombre">Pulsante</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="4" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num">4</div>
+            <span class="opcion-nivel-nombre">Portales</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="5" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num">5</div>
+            <span class="opcion-nivel-nombre">Tormenta</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="6" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num">6</div>
+            <span class="opcion-nivel-nombre">Caos Grid</span>
+          </div>
+          <div class="opcion-nivel" data-nivel="7" tabindex="0" role="button" aria-pressed="false">
+            <div class="opcion-nivel-num" style="color:var(--amarillo-energia)">7</div>
+            <span class="opcion-nivel-nombre" style="color:var(--amarillo-energia)">MAESTRO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de inicio -->
+      <button class="boton-neon" id="botonComenzarJuego" style="font-size:1rem;padding:18px 64px;pointer-events:all;"
+              onclick="comenzarJuego()">
+        ▶ COMENZAR PARTIDA
+      </button>
+    </div>
+
+    <!-- === CONTROLES TÁCTILES (MÓVIL) === -->
+    <div class="controles-tactiles" id="controlesTactiles" aria-label="Controles táctiles" hidden>
+      <!-- D-pad Jugador 1 -->
+      <div>
+        <div class="dpad" id="dpadJ1">
+          <div></div>
+          <button class="dpad-btn" id="dpadJ1Up" aria-label="Arriba J1">▲</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadJ1Left" aria-label="Izquierda J1">◀</button>
+          <div class="dpad-centro"></div>
+          <button class="dpad-btn" id="dpadJ1Right" aria-label="Derecha J1">▶</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadJ1Down" aria-label="Abajo J1">▼</button>
+          <div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <button class="dpad-btn-especial" id="dpadJ1Turbo">TURBO</button>
+          <button class="dpad-btn-especial" id="dpadJ1Salto">SALTO</button>
+          <button class="dpad-btn-especial" id="dpadJ1Hab">HAB</button>
+        </div>
+      </div>
+
+      <!-- D-pad Jugador 2 -->
+      <div>
+        <div class="dpad" id="dpadJ2">
+          <div></div>
+          <button class="dpad-btn" id="dpadJ2Up" aria-label="Arriba J2" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">▲</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadJ2Left" aria-label="Izquierda J2" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">◀</button>
+          <div class="dpad-centro"></div>
+          <button class="dpad-btn" id="dpadJ2Right" aria-label="Derecha J2" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">▶</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadJ2Down" aria-label="Abajo J2" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">▼</button>
+          <div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end;">
+          <button class="dpad-btn-especial" id="dpadJ2Turbo" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">TURBO</button>
+          <button class="dpad-btn-especial" id="dpadJ2Salto" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">SALTO</button>
+          <button class="dpad-btn-especial" id="dpadJ2Hab" style="border-color:rgba(255,45,120,0.3);color:var(--magenta-neon)">HAB</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /wrapper-juego -->
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Scripts del juego (orden de dependencias) -->
+  <script src="/scripts/utilidades.js"></script>
+  <script src="/scripts/usuarios.js"></script>
+  <script src="/scripts/niveles.js"></script>
+  <script src="/scripts/jugador.js"></script>
+  <script src="/scripts/estela.js"></script>
+  <script src="/scripts/orbes.js"></script>
+  <script src="/scripts/obstaculos.js"></script>
+  <script src="/scripts/colisiones.js"></script>
+  <script src="/scripts/render.js"></script>
+  <script src="/scripts/audio.js"></script>
+  <script src="/scripts/hud.js"></script>
+  <script src="/scripts/eventos.js"></script>
+  <script src="/scripts/motor.js"></script>
+</body>
+</html>

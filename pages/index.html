@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARENA TRON — Ciclos de Luz | Menú Principal</title>
+  <meta name="description" content="ARENA TRON: Ciclos de Luz — Juego competitivo 1vs1 de ciclos de luz estilo TRON. Elige tu moto, selecciona el nivel y compite contra un rival en tiempo real.">
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <!-- Fuentes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Estilos del proyecto -->
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/efectos.css">
+  <link rel="stylesheet" href="/styles/menu.css">
+</head>
+<body class="fondo-grid">
+
+  <!-- Canvas de partículas flotantes (fondo animado) -->
+  <canvas id="canvasParticulas" aria-hidden="true"></canvas>
+
+  <!-- Overlays de atmósfera -->
+  <div class="overlay-grid" aria-hidden="true"></div>
+  <div class="overlay-vignette" aria-hidden="true"></div>
+
+  <!-- Navbar principal -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" role="navigation" aria-label="Navegación principal">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="/">⬡ ARENA TRON</a>
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#navbarMenu"
+              aria-controls="navbarMenu" aria-expanded="false"
+              aria-label="Alternar navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto gap-2">
+          <li class="nav-item"><a class="nav-link active" href="/" aria-current="page">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/juego">Juego</a></li>
+          <li class="nav-item"><a class="nav-link" href="/instrucciones">Instrucciones</a></li>
+          <li class="nav-item"><a class="nav-link" href="/jugadores">Jugadores</a></li>
+          <li class="nav-item"><a class="nav-link" href="/marcador">Marcador</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal del menú -->
+  <main class="seccion-menu" role="main">
+    <div class="contenido-menu">
+
+      <!-- Título principal con efecto glitch -->
+      <h1 class="titulo-arena" data-text="ARENA TRON" aria-label="Arena Tron">
+        ARENA TRON
+      </h1>
+      <p class="subtitulo-menu">Ciclos de Luz — Partida 1 vs 1</p>
+
+      <!-- Separador decorativo -->
+      <div class="separador-neon" aria-hidden="true"></div>
+
+      <!-- Botones de navegación principal -->
+      <nav class="grupo-botones-menu" aria-label="Acciones del menú">
+        <a href="/juego" class="boton-menu" id="botonIniciarPartida" role="button">
+          <span class="icono-boton" aria-hidden="true">▶</span>
+          <span>Iniciar Partida</span>
+        </a>
+        <a href="/jugadores" class="boton-menu boton-menu-secundario" id="botonGestionarJugadores" role="button">
+          <span class="icono-boton" aria-hidden="true">👤</span>
+          <span>Gestionar Jugadores</span>
+        </a>
+        <a href="/instrucciones" class="boton-menu boton-menu-secundario" id="botonInstrucciones" role="button">
+          <span class="icono-boton" aria-hidden="true">📖</span>
+          <span>Instrucciones</span>
+        </a>
+        <a href="/marcador" class="boton-menu boton-menu-secundario" id="botonMarcador" role="button">
+          <span class="icono-boton" aria-hidden="true">🏆</span>
+          <span>Marcador Global</span>
+        </a>
+      </nav>
+
+      <!-- Perfiles activos (se rellena con JS si existen en localStorage) -->
+      <section class="seccion-perfiles-activos" id="seccionPerfilesActivos" aria-label="Perfiles activos" hidden>
+        <p class="etiqueta-perfiles">Últimos Jugadores</p>
+        <div class="contenedor-perfiles" id="contenedorPerfiles"></div>
+      </section>
+    </div>
+
+    <!-- Footer informativo -->
+    <footer class="footer-menu">
+      <p>JS2 · Proyecto 3 · ARENA TRON v1.0</p>
+    </footer>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Cerrar menú hamburguesa al hacer click en cualquier link de navegación
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        if (navbarCollapse.classList.contains('show')) {
+          new bootstrap.Collapse(navbarCollapse).hide();
+        }
+      });
+    });
+  </script>
+
+  <!-- Módulos del juego necesarios en el menú -->
+  <script src="/scripts/utilidades.js"></script>
+  <script src="/scripts/usuarios.js"></script>
+  <script src="/scripts/menu.js"></script>
+</body>
+</html>

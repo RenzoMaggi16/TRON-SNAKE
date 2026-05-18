@@ -1,0 +1,623 @@
+/* juego.css — Estilos del HUD, overlays y wrapper del canvas del juego. */
+
+/* === WRAPPER PRINCIPAL DEL JUEGO === */
+.wrapper-juego {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: var(--negro-profundo);
+  display: flex;
+  flex-direction: column;
+}
+
+/* === CANVAS PRINCIPAL === */
+#arenaCanvas {
+  display: block;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* === HUD OVERLAY === */
+/* El HUD está superpuesto al canvas usando posicionamiento absoluto */
+#hudOverlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;  /* No interfiere con el canvas */
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+/* Fila superior del HUD */
+.hud-fila-superior {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Panel HUD de cada jugador */
+.hud-jugador {
+  background: rgba(10, 10, 26, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  padding: 10px 14px;
+  min-width: 200px;
+  max-width: 240px;
+  backdrop-filter: blur(4px);
+}
+
+.hud-jugador-2 {
+  border-color: rgba(255, 45, 120, 0.2);
+}
+
+.hud-nombre {
+  font-family: var(--fuente-tron);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Barra de turbo */
+.hud-barra-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.hud-barra-label {
+  font-family: var(--fuente-ui);
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  width: 38px;
+  flex-shrink: 0;
+}
+
+.hud-barra {
+  flex: 1;
+  height: 7px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hud-barra-relleno {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.hud-barra-turbo .hud-barra-relleno {
+  background: linear-gradient(90deg, var(--magenta-neon), var(--cyan-electrico));
+}
+
+.hud-barra-turbo.baja .hud-barra-relleno {
+  animation: turboBajo 0.4s ease-in-out infinite;
+}
+
+/* Vidas */
+.hud-vidas {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.hud-vida-icono {
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.hud-vida-icono.perdida {
+  opacity: 0.15;
+  filter: none;
+  transform: scale(0.7);
+}
+
+/* Puntaje */
+.hud-puntaje {
+  font-family: var(--fuente-ui);
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 3px;
+}
+
+/* Indicador de habilidad */
+.hud-habilidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.hud-habilidad-icono {
+  font-size: 0.9rem;
+  width: 22px;
+  text-align: center;
+}
+
+.hud-habilidad-nombre {
+  font-family: var(--fuente-ui);
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.5);
+  flex: 1;
+}
+
+.hud-habilidad-estado {
+  font-family: var(--fuente-ui);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+}
+
+.hud-habilidad-estado.listo {
+  color: var(--verde-electrico);
+  animation: listoParpadeo 1s ease-in-out infinite;
+}
+
+.hud-habilidad-estado.cooldown {
+  color: var(--cyan-oscuro);
+}
+
+/* Centro del HUD */
+.hud-centro {
+  text-align: center;
+  flex: 1;
+}
+
+.hud-nivel-texto {
+  font-family: var(--fuente-tron);
+  font-size: 0.65rem;
+  color: var(--blanco-neon);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.hud-temporizador {
+  font-family: var(--fuente-ui);
+  font-size: 1.3rem;
+  color: var(--blanco-brillante);
+  letter-spacing: 4px;
+  text-shadow: var(--glow-blanco);
+  margin-top: 2px;
+}
+
+/* === PUNTAJES FLOTANTES === */
+#contenedorFlotantes {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 200;
+}
+
+.puntaje-flotante {
+  position: absolute;
+  font-family: var(--fuente-ui);
+  font-size: 1.1rem;
+  font-weight: 700;
+  pointer-events: none;
+  animation: puntajeFlotante 1.2s ease-out forwards;
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* === OVERLAY DE CUENTA REGRESIVA === */
+#overlayContador {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.numero-cuenta {
+  font-family: var(--fuente-tron);
+  font-size: clamp(5rem, 15vw, 10rem);
+  font-weight: 900;
+  color: var(--cyan-electrico);
+  text-shadow: var(--glow-cyan);
+  animation: contadorPulso 1s ease-out forwards;
+}
+
+/* === OVERLAY DE PAUSA === */
+#overlayPausa {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5, 5, 16, 0.85);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 800;
+  backdrop-filter: blur(4px);
+  gap: 24px;
+}
+
+#overlayPausa.visible {
+  display: flex;
+  animation: aparecer 0.3s ease;
+}
+
+.titulo-pausa {
+  font-family: var(--fuente-tron);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900;
+  color: var(--cyan-electrico);
+  text-shadow: var(--glow-cyan);
+  letter-spacing: 8px;
+}
+
+.pausa-instruccion {
+  font-family: var(--fuente-ui);
+  font-size: 0.85rem;
+  color: var(--cyan-oscuro);
+  letter-spacing: 3px;
+}
+
+.pausa-botones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  pointer-events: all;
+}
+
+/* === OVERLAY DE FIN DE PARTIDA === */
+#overlayFinPartida {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5, 5, 16, 0.92);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  backdrop-filter: blur(6px);
+  gap: 16px;
+}
+
+#overlayFinPartida.visible {
+  display: flex;
+}
+
+.titulo-ganador {
+  font-family: var(--fuente-tron);
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 4px;
+  animation: animar-victoria 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.nombre-ganador {
+  font-family: var(--fuente-tron);
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-weight: 900;
+  text-shadow: var(--glow-cyan);
+  animation: animar-victoria 0.6s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.estadisticas-fin {
+  background: var(--negro-medio);
+  border: var(--borde-panel);
+  border-radius: 4px;
+  padding: 20px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 32px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.stat-fin-label {
+  font-family: var(--fuente-ui);
+  font-size: 0.65rem;
+  color: var(--cyan-oscuro);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.stat-fin-valor {
+  font-family: var(--fuente-ui);
+  font-size: 1.3rem;
+  color: var(--blanco-brillante);
+}
+
+.fin-botones {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  pointer-events: all;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* === OVERLAY DE SELECCIÓN DE INICIO === */
+#overlayInicio {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5, 5, 16, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  gap: 20px;
+  overflow-y: auto;
+  padding: 80px 20px 40px;
+}
+
+.titulo-inicio-juego {
+  font-family: var(--fuente-tron);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 900;
+  color: var(--cyan-electrico);
+  text-shadow: var(--glow-cyan);
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+.contenedor-seleccion {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  max-width: 900px;
+}
+
+.panel-jugador-seleccion {
+  background: var(--negro-medio);
+  border: var(--borde-panel);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.panel-jugador-seleccion.jugador-1 {
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.panel-jugador-seleccion.jugador-2 {
+  border-color: rgba(255, 45, 120, 0.4);
+}
+
+.titulo-panel-jugador {
+  font-family: var(--fuente-tron);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.separador-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fuente-tron);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--amarillo-energia);
+  text-shadow: 0 0 15px var(--amarillo-energia);
+  padding-top: 40px;
+}
+
+/* Selector de moto */
+.grid-motos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.opcion-moto {
+  padding: 10px 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transicion-media);
+  background: transparent;
+}
+
+.opcion-moto:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+}
+
+.opcion-moto.seleccionada {
+  border-width: 2px;
+  background: rgba(255,255,255,0.08);
+}
+
+.opcion-moto-nombre {
+  font-family: var(--fuente-tron);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.opcion-moto-habilidad {
+  font-family: var(--fuente-ui);
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Selector de nivel */
+.seccion-nivel {
+  background: var(--negro-medio);
+  border: var(--borde-panel);
+  border-radius: 4px;
+  padding: 20px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.titulo-seccion-nivel {
+  font-family: var(--fuente-tron);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: var(--cyan-electrico);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.grid-niveles {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.opcion-nivel {
+  padding: 10px 4px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transicion-media);
+  background: transparent;
+  position: relative;
+}
+
+.opcion-nivel:hover {
+  border-color: var(--cyan-electrico);
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.opcion-nivel.seleccionado {
+  border-color: var(--cyan-electrico);
+  background: rgba(0, 212, 255, 0.15);
+  box-shadow: var(--glow-cyan);
+}
+
+.opcion-nivel-num {
+  font-family: var(--fuente-tron);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cyan-electrico);
+}
+
+.opcion-nivel-nombre {
+  font-family: var(--fuente-ui);
+  font-size: 0.5rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* === SELECTOR DE PERFIL === */
+.select-perfil {
+  width: 100%;
+  background: var(--negro-profundo);
+  border: var(--borde-neon-cyan);
+  color: var(--blanco-neon);
+  font-family: var(--fuente-ui);
+  font-size: 0.8rem;
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-perfil:focus {
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
+
+/* === CONTROLES TÁCTILES MÓVIL === */
+.controles-tactiles {
+  position: absolute;
+  bottom: 20px;
+  left: 0; right: 0;
+  display: none;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: all;
+  z-index: 300;
+}
+
+@media (max-width: 768px) {
+  .controles-tactiles {
+    display: flex;
+  }
+
+  .grid-niveles {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .contenedor-seleccion {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .separador-vs {
+    padding: 0;
+    text-align: center;
+  }
+}
+
+/* D-pad de control táctil */
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  gap: 4px;
+  user-select: none;
+}
+
+.dpad-btn {
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
+  color: var(--cyan-electrico);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dpad-btn:active {
+  background: rgba(0, 212, 255, 0.35);
+  box-shadow: var(--glow-cyan);
+}
+
+.dpad-btn-especial {
+  background: rgba(255, 45, 120, 0.15);
+  border-color: rgba(255, 45, 120, 0.3);
+  color: var(--magenta-neon);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--fuente-ui);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+}
+
+.dpad-btn-especial:active {
+  background: rgba(255, 45, 120, 0.35);
+  box-shadow: var(--glow-magenta);
+}
+
+/* Espacio central del dpad (vacío) */
+.dpad-centro { pointer-events: none; }

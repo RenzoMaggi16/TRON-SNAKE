@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instrucciones — ARENA TRON: Ciclos de Luz</title>
+  <meta name="description" content="Instrucciones completas de ARENA TRON: controles, tipos de orbes, niveles y mecánicas especiales.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/efectos.css">
+  <style>
+    body { padding-top: 70px; }
+    .seccion-instrucciones {
+      padding: 40px 0 80px;
+      min-height: 100vh;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .titulo-seccion {
+      font-family: var(--fuente-tron);
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      color: var(--cyan-electrico);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,212,255,0.2);
+    }
+    .tabla-instrucciones {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--fuente-ui);
+      font-size: 0.85rem;
+    }
+    .tabla-instrucciones th {
+      background: var(--negro-medio);
+      color: var(--cyan-electrico);
+      padding: 10px 16px;
+      text-align: left;
+      letter-spacing: 2px;
+      font-size: 0.7rem;
+      border-bottom: 1px solid rgba(0,212,255,0.3);
+    }
+    .tabla-instrucciones td {
+      padding: 10px 16px;
+      color: var(--blanco-neon);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: middle;
+    }
+    .tabla-instrucciones tr:hover td {
+      background: rgba(0,212,255,0.04);
+    }
+    .tecla {
+      display: inline-block;
+      background: var(--negro-medio);
+      border: 1px solid rgba(0,212,255,0.4);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: var(--fuente-ui);
+      font-size: 0.75rem;
+      color: var(--cyan-electrico);
+      letter-spacing: 1px;
+    }
+    .tecla-j2 { border-color: rgba(255,45,120,0.4); color: var(--magenta-neon); }
+    .orbe-icono {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .nivel-badge {
+      display: inline-block;
+      font-family: var(--fuente-tron);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+    }
+    .moto-card {
+      background: var(--negro-medio);
+      border: var(--borde-panel);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .moto-color-badge {
+      width: 32px; height: 32px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .moto-info h4 {
+      font-family: var(--fuente-tron);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .moto-info p {
+      font-family: var(--fuente-ui);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="/">⬡ ARENA TRON</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto gap-2">
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/juego">Juego</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/instrucciones">Instrucciones</a></li>
+          <li class="nav-item"><a class="nav-link" href="/jugadores">Jugadores</a></li>
+          <li class="nav-item"><a class="nav-link" href="/marcador">Marcador</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="seccion-instrucciones">
+    <div class="container">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/" class="boton-volver">← Volver al Inicio</a>
+      </div>
+
+      <h1 class="texto-tron glow-cyan mb-4" style="font-size:clamp(1.5rem,4vw,2.5rem);letter-spacing:4px;">
+        Instrucciones
+      </h1>
+
+      <div class="row g-4">
+
+        <!-- Controles -->
+        <div class="col-12">
+          <div class="panel-neon">
+            <h2 class="titulo-seccion">Controles</h2>
+            <div class="table-responsive">
+              <table class="tabla-instrucciones" aria-label="Tabla de controles por jugador">
+                <thead>
+                  <tr>
+                    <th>Acción</th>
+                    <th>Jugador 1 (WASD)</th>
+                    <th>Jugador 2 (Flechas)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Mover arriba</td>
+                    <td><span class="tecla">W</span></td>
+                    <td><span class="tecla tecla-j2">↑</span></td>
+                  </tr>
+                  <tr>
+                    <td>Mover abajo</td>
+                    <td><span class="tecla">S</span></td>
+                    <td><span class="tecla tecla-j2">↓</span></td>
+                  </tr>
+                  <tr>
+                    <td>Mover izquierda</td>
+                    <td><span class="tecla">A</span></td>
+                    <td><span class="tecla tecla-j2">←</span></td>
+                  </tr>
+                  <tr>
+                    <td>Mover derecha</td>
+                    <td><span class="tecla">D</span></td>
+                    <td><span class="tecla tecla-j2">→</span></td>
+                  </tr>
+                  <tr>
+                    <td>Turbo / Boost</td>
+                    <td><span class="tecla">Q</span></td>
+                    <td><span class="tecla tecla-j2">Num 0</span></td>
+                  </tr>
+                  <tr>
+                    <td>Salto corto</td>
+                    <td><span class="tecla">E</span></td>
+                    <td><span class="tecla tecla-j2">Num .</span></td>
+                  </tr>
+                  <tr>
+                    <td>Habilidad especial</td>
+                    <td><span class="tecla">R</span></td>
+                    <td><span class="tecla tecla-j2">Num Enter</span></td>
+                  </tr>
+                  <tr>
+                    <td>Pausar / Reanudar</td>
+                    <td colspan="2" style="text-align:center;"><span class="tecla">Escape</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motos y habilidades -->
+        <div class="col-md-6">
+          <div class="panel-neon h-100">
+            <h2 class="titulo-seccion">Motos y Habilidades</h2>
+
+            <div class="moto-card">
+              <div class="moto-color-badge" style="background:#00D4FF;box-shadow:0 0 12px #00D4FF;"></div>
+              <div class="moto-info">
+                <h3 style="color:#00D4FF;">Ciclo Azul</h3>
+                <h4 style="color:#00D4FF80;font-size:0.7rem;">⚡ Pulso EMP — Tecla R / Num Enter</h4>
+                <p>Desactiva el turbo enemigo por 3 segundos y drena el 50% de su energía de turbo. Tiempo de recarga: 15 segundos.</p>
+              </div>
+            </div>
+
+            <div class="moto-card">
+              <div class="moto-color-badge" style="background:#FF2D78;box-shadow:0 0 12px #FF2D78;"></div>
+              <div class="moto-info">
+                <h3 style="color:#FF2D78;">Ciclo Rojo</h3>
+                <h4 style="color:#FF2D7880;font-size:0.7rem;">✂ Cortador Láser — Tecla R / Num Enter</h4>
+                <p>Elimina los últimos 20 segmentos de la estela enemiga. Genera partículas de corte en el punto de impacto. Recarga: 12 segundos.</p>
+              </div>
+            </div>
+
+            <div class="moto-card">
+              <div class="moto-color-badge" style="background:#FF8C00;box-shadow:0 0 12px #FF8C00;"></div>
+              <div class="moto-info">
+                <h3 style="color:#FF8C00;">Ciclo Naranja</h3>
+                <h4 style="color:#FF8C0080;font-size:0.7rem;">👁 Señuelo — Tecla R / Num Enter</h4>
+                <p>Crea una estela fantasma falsa durante 4 segundos. El rival la ve pero no colisiona con ella. Recarga: 20 segundos.</p>
+              </div>
+            </div>
+
+            <div class="moto-card">
+              <div class="moto-color-badge" style="background:#39FF14;box-shadow:0 0 12px #39FF14;"></div>
+              <div class="moto-info">
+                <h3 style="color:#39FF14;">Ciclo Verde</h3>
+                <h4 style="color:#39FF1480;font-size:0.7rem;">🛡 Escudo Energético — Tecla R / Num Enter</h4>
+                <p>Absorbe una colisión que normalmente sería fatal. Otorga 2 segundos de inmunidad adicional. Halo visual visible. Recarga: 18 segundos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orbes -->
+        <div class="col-md-6">
+          <div class="panel-neon h-100">
+            <h2 class="titulo-seccion">Orbes de Poder</h2>
+            <table class="tabla-instrucciones" aria-label="Tipos de orbes y sus efectos">
+              <thead>
+                <tr>
+                  <th>Orbe</th>
+                  <th>Efecto</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="orbe-icono" style="background:#FFD700;box-shadow:0 0 8px #FFD700;"></span>
+                    <span style="color:#FFD700;">⚡ Velocidad</span>
+                  </td>
+                  <td>+20% velocidad durante 5 segundos</td>
+                  <td style="color:#FFD700;">100</td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="orbe-icono" style="background:#00FF88;box-shadow:0 0 8px #00FF88;"></span>
+                    <span style="color:#00FF88;">➕ Longitud</span>
+                  </td>
+                  <td>Aumenta la estela en 10 segmentos permanentemente</td>
+                  <td style="color:#00FF88;">150</td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="orbe-icono" style="background:#FF00FF;box-shadow:0 0 8px #FF00FF;"></span>
+                    <span style="color:#FF00FF;">🔋 Turbo</span>
+                  </td>
+                  <td>Recarga el 30% de turbo inmediatamente</td>
+                  <td style="color:#FF00FF;">80</td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="orbe-icono" style="background:#FF4500;box-shadow:0 0 8px #FF4500;"></span>
+                    <span style="color:#FF4500;">✂ Cortador</span>
+                  </td>
+                  <td>Permite cortar la estela enemiga por 8 segundos</td>
+                  <td style="color:#FF4500;">120</td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="orbe-icono" style="background:#87CEEB;box-shadow:0 0 8px #87CEEB;"></span>
+                    <span style="color:#87CEEB;">🛡 Escudo</span>
+                  </td>
+                  <td>Absorbe una colisión fatal durante 5 segundos</td>
+                  <td style="color:#87CEEB;">90</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="margin-top:20px;">
+              <h3 class="titulo-seccion">Sistema de Puntaje</h3>
+              <table class="tabla-instrucciones">
+                <tbody>
+                  <tr><td>Sobrevivir 10 segundos</td><td style="color:var(--cyan-electrico);text-align:right;">+50</td></tr>
+                  <tr><td>Cortar estela enemiga</td><td style="color:var(--cyan-electrico);text-align:right;">+500</td></tr>
+                  <tr><td>Usar un portal</td><td style="color:var(--cyan-electrico);text-align:right;">+200</td></tr>
+                  <tr><td>Eliminar al rival</td><td style="color:var(--amarillo-energia);text-align:right;">+1000</td></tr>
+                  <tr><td>Multiplicador de nivel</td><td style="color:var(--verde-electrico);text-align:right;">×(1 + (N-1)×0.3)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Niveles -->
+        <div class="col-12">
+          <div class="panel-neon">
+            <h2 class="titulo-seccion">Los 7 Niveles</h2>
+            <div class="table-responsive">
+              <table class="tabla-instrucciones" aria-label="Tabla de los 7 niveles">
+                <thead>
+                  <tr>
+                    <th>Nivel</th>
+                    <th>Nombre</th>
+                    <th>Obstáculos</th>
+                    <th>Portales</th>
+                    <th>Velocidad</th>
+                    <th>Regla Única</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(0,212,255,0.1);color:#00D4FF;border:1px solid #00D4FF40;">1</span></td>
+                    <td style="color:#00D4FF;">Sector Inicial</td>
+                    <td>Ninguno</td>
+                    <td>No</td>
+                    <td>×1.0</td>
+                    <td>Aprendizaje puro, sin obstáculos</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(0,212,255,0.1);color:#00D4FF;border:1px solid #00D4FF40;">2</span></td>
+                    <td style="color:#00D4FF;">Zona de Detritos</td>
+                    <td>Estáticos</td>
+                    <td>No</td>
+                    <td>×1.1</td>
+                    <td>Bloques fijos que bloquean el camino</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(255,140,0,0.1);color:#FF8C00;border:1px solid #FF8C0040;">3</span></td>
+                    <td style="color:#FF8C00;">Corredor Pulsante</td>
+                    <td>Horizontales</td>
+                    <td>No</td>
+                    <td>×1.2</td>
+                    <td>Obstáculos que rebotan izquierda-derecha</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(255,140,0,0.1);color:#FF8C00;border:1px solid #FF8C0040;">4</span></td>
+                    <td style="color:#FF8C00;">Nexo de Portales</td>
+                    <td>Estáticos</td>
+                    <td>Sí</td>
+                    <td>×1.3</td>
+                    <td>¡Ambos deben cruzar para teletransportarse!</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(255,45,120,0.1);color:#FF2D78;border:1px solid #FF2D7840;">5</span></td>
+                    <td style="color:#FF2D78;">Tormenta Eléctrica</td>
+                    <td>Diagonal + Estáticos</td>
+                    <td>Sí</td>
+                    <td>×1.5</td>
+                    <td>Proyectiles que rebotan en diagonal</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(255,45,120,0.1);color:#FF2D78;border:1px solid #FF2D7840;">6</span></td>
+                    <td style="color:#FF2D78;">Caos del Grid</td>
+                    <td>Todos los tipos</td>
+                    <td>Sí</td>
+                    <td>×1.7</td>
+                    <td>Caos máximo con obstáculos giratorios</td>
+                  </tr>
+                  <tr>
+                    <td><span class="nivel-badge" style="background:rgba(255,215,0,0.1);color:#FFD700;border:1px solid #FFD70040;">7</span></td>
+                    <td style="color:#FFD700;">MODO MAESTRO</td>
+                    <td>Todos + Regenerativos</td>
+                    <td>Sí</td>
+                    <td>×2.0</td>
+                    <td>¡Las estelas se regeneran! Velocidad máxima.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mecánicas especiales -->
+        <div class="col-md-6">
+          <div class="panel-neon h-100">
+            <h2 class="titulo-seccion">Mecánicas Especiales</h2>
+
+            <div style="margin-bottom:16px;">
+              <h3 style="font-family:var(--fuente-tron);font-size:0.75rem;color:var(--magenta-neon);letter-spacing:2px;margin-bottom:8px;">
+                🚀 Turbo / Boost
+              </h3>
+              <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);">
+                Aumenta la velocidad un 60% mientras está activo. Consume energía a 2% por frame.
+                Se recarga automáticamente al 0.5% por frame. Genera partículas de propulsión.
+              </p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <h3 style="font-family:var(--fuente-tron);font-size:0.75rem;color:var(--verde-electrico);letter-spacing:2px;margin-bottom:8px;">
+                ↑ Salto Corto
+              </h3>
+              <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);">
+                Durante 400ms la moto vuela sobre las estelas sin colisionar. Máximo 2 saltos consecutivos
+                antes de tocar el suelo. La moto se ve más pequeña y brillante durante el salto.
+              </p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <h3 style="font-family:var(--fuente-tron);font-size:0.75rem;color:var(--naranja-neon);letter-spacing:2px;margin-bottom:8px;">
+                ✂ Corte de Estela
+              </h3>
+              <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);">
+                Con el orbe Cortador activo o la habilidad del Ciclo Rojo: al colisionar frontalmente con
+                la estela enemiga en vez de morir, eliminas sus últimos 20 segmentos.
+              </p>
+            </div>
+
+            <div>
+              <h3 style="font-family:var(--fuente-tron);font-size:0.75rem;color:var(--cyan-electrico);letter-spacing:2px;margin-bottom:8px;">
+                ⬡ Portales
+              </h3>
+              <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);">
+                Aparecen en pares en el mapa. Si ambos jugadores cruzan el mismo portal en menos de 2 segundos,
+                ambos se teletransportan al portal complementario. Si solo uno lo cruza, no sucede nada.
+                ¡Úsalos para cooperar o para encerrar al rival!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sistema de reanimación -->
+        <div class="col-md-6">
+          <div class="panel-neon h-100">
+            <h2 class="titulo-seccion">Sistema de Reanimación</h2>
+            <p style="font-family:var(--fuente-ui);font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:16px;">
+              Cada jugador comienza con <strong style="color:var(--cyan-electrico);">3 vidas</strong>.
+              Al colisionar, si tiene vidas restantes, reaparece en una posición segura.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="panel-neon" style="padding:12px;background:rgba(0,0,0,0.3);">
+                <p style="font-family:var(--fuente-tron);font-size:0.65rem;color:var(--amarillo-energia);letter-spacing:2px;margin-bottom:6px;">
+                  PASO 1 — ELIMINACIÓN
+                </p>
+                <p style="font-family:var(--fuente-ui);font-size:0.75rem;color:rgba(255,255,255,0.6);margin:0;">
+                  Colisión detectada → explosión de partículas → pierde 1 vida
+                </p>
+              </div>
+              <div class="panel-neon" style="padding:12px;background:rgba(0,0,0,0.3);">
+                <p style="font-family:var(--fuente-tron);font-size:0.65rem;color:var(--amarillo-energia);letter-spacing:2px;margin-bottom:6px;">
+                  PASO 2 — CUENTA REGRESIVA
+                </p>
+                <p style="font-family:var(--fuente-ui);font-size:0.75rem;color:rgba(255,255,255,0.6);margin:0;">
+                  Contador 3… 2… 1… en pantalla
+                </p>
+              </div>
+              <div class="panel-neon" style="padding:12px;background:rgba(0,0,0,0.3);">
+                <p style="font-family:var(--fuente-tron);font-size:0.65rem;color:var(--amarillo-energia);letter-spacing:2px;margin-bottom:6px;">
+                  PASO 3 — REAPARICIÓN
+                </p>
+                <p style="font-family:var(--fuente-ui);font-size:0.75rem;color:rgba(255,255,255,0.6);margin:0;">
+                  Reaparece en posición segura con 3 segundos de invulnerabilidad (parpadeo visual)
+                </p>
+              </div>
+              <div class="panel-neon" style="padding:12px;background:rgba(255,23,68,0.1);border-color:rgba(255,23,68,0.3);">
+                <p style="font-family:var(--fuente-tron);font-size:0.65rem;color:var(--rojo-intenso);letter-spacing:2px;margin-bottom:6px;">
+                  SIN VIDAS → FIN DE PARTIDA
+                </p>
+                <p style="font-family:var(--fuente-ui);font-size:0.75rem;color:rgba(255,255,255,0.6);margin:0;">
+                  Si vidas = 0: eliminación definitiva. El rival gana la partida.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /row -->
+    </div><!-- /container -->
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        if (navbarCollapse.classList.contains('show')) {
+          new bootstrap.Collapse(navbarCollapse).hide();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
