@@ -211,7 +211,7 @@ function configurarPartida(nivel, motoJ1, motoJ2, idPerfil1, idPerfil2) {
  * @returns {Jugador} Instancia del jugador configurada.
  */
 function crearJugadorConPerfil(id, tipoMoto, idPerfil, perfiles, posicion, direccion, velocidadBase) {
-  const configMoto = CONFIGURACION_MOTOS[tipoMoto] || CONFIGURACION_MOTOS.azul;
+  const configMoto = CONFIGURACION_MOTOS[tipoMoto] || CONFIGURACION_MOTOS.celeste;
   const perfil     = perfiles.find(p => p.id === idPerfil);
 
   const jugador = new Jugador({

@@ -11,6 +11,7 @@ const elementosHUD = {
   j1HabIcono:  null,
   j1HabNombre: null,
   j1HabEstado: null,
+  j1SaltoContenedor: null,  // Contenedor del indicador de salto J1
   j2Nombre:    null,
   j2Turbo:     null,
   j2TurboContenedor: null,
@@ -19,6 +20,7 @@ const elementosHUD = {
   j2HabIcono:  null,
   j2HabNombre: null,
   j2HabEstado: null,
+  j2SaltoContenedor: null,  // Contenedor del indicador de salto J2
   nivelTexto:  null,
   temporizador:null,
   contenedorFlotantes: null,
@@ -59,6 +61,9 @@ function inicializarHUD() {
   elementosHUD.j2HabIcono  = document.getElementById('hud2HabIcono');
   elementosHUD.j2HabNombre = document.getElementById('hud2HabNombre');
   elementosHUD.j2HabEstado = document.getElementById('hud2HabEstado');
+  // Indicadores de cooldown de salto (pueden ser null si no existen en el HTML)
+  elementosHUD.j1SaltoContenedor = document.getElementById('hud1SaltoContenedor');
+  elementosHUD.j2SaltoContenedor = document.getElementById('hud2SaltoContenedor');
 
   elementosHUD.nivelTexto   = document.getElementById('hudNivelTexto');
   elementosHUD.temporizador = document.getElementById('hudTemporizador');
@@ -126,6 +131,9 @@ function actualizarHUDJugador(jugador, numeroJugador) {
 
   // Estado de la habilidad especial
   actualizarIndicadorHabilidad(jugador, prefijo);
+
+  // Indicador de cooldown de salto
+  actualizarIndicadorSalto(jugador, prefijo);
 }
 
 /**
@@ -154,6 +162,39 @@ function actualizarIndicadorHabilidad(jugador, prefijo) {
     const segundosRestantes = Math.ceil(jugador.cooldownHabilidad / 1000);
     estadoEl.textContent = `${segundosRestantes}s`;
     estadoEl.className   = 'hud-habilidad-estado cooldown texto-ui';
+  }
+}
+
+/**
+ * Actualiza el indicador visual del cooldown de salto en el HUD.
+ * Muestra el cooldown restante en segundos; si el salto está disponible, brilla.
+ * @param {Jugador} jugador - Jugador.
+ * @param {string} prefijo - 'j1' o 'j2'.
+ */
+function actualizarIndicadorSalto(jugador, prefijo) {
+  const contenedor = elementosHUD[`${prefijo}SaltoContenedor`];
+  if (!contenedor) return; // El elemento no existe en el HTML, ignorar sin error
+
+  const iconoEl  = contenedor.querySelector('.hud-salto-icono');
+  const textoEl  = contenedor.querySelector('.hud-salto-estado');
+
+  if (jugador.cooldownSalto > 0) {
+    // Salto en cooldown: apagar el ícono y mostrar segundos restantes
+    if (iconoEl) iconoEl.style.opacity = '0.3';
+    if (textoEl) textoEl.textContent   = `${Math.ceil(jugador.cooldownSalto / 1000)}s`;
+    contenedor.classList.add('cooldown');
+    contenedor.classList.remove('disponible');
+  } else if (jugador.saltosDisponibles > 0) {
+    // Salto disponible: brillar con el color del jugador
+    if (iconoEl) iconoEl.style.opacity = '1';
+    if (textoEl) textoEl.textContent   = jugador.saltosDisponibles === 2 ? '■■' : '□■';
+    contenedor.classList.add('disponible');
+    contenedor.classList.remove('cooldown');
+  } else {
+    // Saltando o sin saltos: icono vacío
+    if (iconoEl) iconoEl.style.opacity = '0.5';
+    if (textoEl) textoEl.textContent   = '□□';
+    contenedor.classList.remove('disponible', 'cooldown');
   }
 }
 

@@ -48,7 +48,7 @@ function dibujarEstela(ctx, jugador) {
 
   // Dibujar la estela señuelo si está activa (visible pero no colisiona)
   if (jugador.senueloActivo && jugador.estelaFantasma.length > 2) {
-    dibujarEstelaFantasma(ctx, jugador.estelaFantasma, jugador.color);
+    dibujarEstelaFantasma(ctx, jugador.estelaFantasma, jugador.color, jugador.opacidadSenuelo);
   }
 }
 
@@ -98,26 +98,35 @@ function dibujarReflejoEstela(ctx, segmentos, color) {
 function dibujarEstelaSolida(ctx, segmentos, color, invulnerable) {
   if (segmentos.length < 2) return;
   ctx.save();
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
 
-  // Primera pasada: glow exterior difuso
-  ctx.globalAlpha = invulnerable ? 0.5 : 0.7;
-  ctx.strokeStyle = color;
-  ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA + 4;
-  ctx.lineCap     = 'round';
-  ctx.lineJoin    = 'round';
-  ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO;
-  ctx.shadowColor = color;
-  trazarSegmentos(ctx, segmentos);
-  ctx.stroke();
+  // Dibujar segmento a segmento con fade de opacidad hacia la cola
+  for (let i = 0; i < segmentos.length - 1; i++) {
+    const progreso    = i / (segmentos.length - 1); // 0=cabeza, 1=cola
+    const opacidadBase = invulnerable ? 0.5 : 1.0;
+    const opacidad    = opacidadBase * (1 - progreso * 0.75); // 100% cabeza → 25% cola
 
-  // Segunda pasada: núcleo brillante
-  ctx.globalAlpha = invulnerable ? 0.3 : 1;
-  ctx.strokeStyle = color;
-  ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA;
-  ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW;
-  ctx.shadowColor = color;
-  trazarSegmentos(ctx, segmentos);
-  ctx.stroke();
+    // Capa exterior: glow difuso
+    ctx.globalAlpha = opacidad * 0.7;
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA + 4;
+    ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO * (1 - progreso * 0.6);
+    ctx.shadowColor = color;
+    ctx.beginPath();
+    ctx.moveTo(segmentos[i].x, segmentos[i].y);
+    ctx.lineTo(segmentos[i + 1].x, segmentos[i + 1].y);
+    ctx.stroke();
+
+    // Capa interior: núcleo brillante
+    ctx.globalAlpha = opacidad;
+    ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA;
+    ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW * (1 - progreso * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(segmentos[i].x, segmentos[i].y);
+    ctx.lineTo(segmentos[i + 1].x, segmentos[i + 1].y);
+    ctx.stroke();
+  }
 
   ctx.restore();
 }
@@ -133,20 +142,26 @@ function dibujarEstelaSolida(ctx, segmentos, color, invulnerable) {
 function dibujarEstelaPunteada(ctx, segmentos, color, invulnerable) {
   if (segmentos.length < 2) return;
   ctx.save();
-
-  ctx.globalAlpha = invulnerable ? 0.4 : 1;
-  ctx.strokeStyle = color;
-  ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA;
   ctx.lineCap     = 'round';
-  ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO;
   ctx.shadowColor = color;
-  ctx.setLineDash([
-    CONSTANTES_ESTELA.LONGITUD_GUION,
-    CONSTANTES_ESTELA.INTERVALO_GUION,
-  ]);
+  ctx.setLineDash([CONSTANTES_ESTELA.LONGITUD_GUION, CONSTANTES_ESTELA.INTERVALO_GUION]);
 
-  trazarSegmentos(ctx, segmentos);
-  ctx.stroke();
+  // Dibujar segmento a segmento con fade de opacidad hacia la cola
+  for (let i = 0; i < segmentos.length - 1; i++) {
+    const progreso    = i / (segmentos.length - 1);
+    const opacidadBase = invulnerable ? 0.4 : 1.0;
+    const opacidad    = opacidadBase * (1 - progreso * 0.75);
+
+    ctx.globalAlpha = opacidad;
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA;
+    ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO * (1 - progreso * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(segmentos[i].x, segmentos[i].y);
+    ctx.lineTo(segmentos[i + 1].x, segmentos[i + 1].y);
+    ctx.stroke();
+  }
+
   ctx.setLineDash([]);
   ctx.restore();
 }
@@ -162,23 +177,26 @@ function dibujarEstelaPunteada(ctx, segmentos, color, invulnerable) {
 function dibujarEstelaElectrica(ctx, segmentos, color, invulnerable) {
   if (segmentos.length < 2) return;
   ctx.save();
-
-  ctx.globalAlpha = invulnerable ? 0.4 : 0.9;
-  ctx.strokeStyle = color;
-  ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA - 1;
   ctx.lineCap     = 'round';
-  ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO;
   ctx.shadowColor = color;
 
-  // Dibujar la estela principal con pequeñas desviaciones
-  ctx.beginPath();
-  ctx.moveTo(segmentos[0].x, segmentos[0].y);
-  for (let i = 1; i < segmentos.length; i++) {
-    // Añadir micro-variación para efecto eléctrico
-    const desviacion = (i % 3 === 0) ? (Math.random() - 0.5) * 4 : 0;
-    ctx.lineTo(segmentos[i].x + desviacion, segmentos[i].y + desviacion);
+  // Dibujar segmento a segmento con fade de opacidad y desviación eléctrica
+  for (let i = 0; i < segmentos.length - 1; i++) {
+    const progreso    = i / (segmentos.length - 1);
+    const opacidadBase = invulnerable ? 0.4 : 0.9;
+    const opacidad    = opacidadBase * (1 - progreso * 0.75);
+    // Micro-variación para efecto de arco eléctrico (solo en segmentos alternos)
+    const desviacion  = (i % 3 === 0) ? (Math.random() - 0.5) * 4 : 0;
+
+    ctx.globalAlpha = opacidad;
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA - 1;
+    ctx.shadowBlur  = CONSTANTES_ESTELA.BLUR_GLOW_INTENSO * (1 - progreso * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(segmentos[i].x, segmentos[i].y);
+    ctx.lineTo(segmentos[i + 1].x + desviacion, segmentos[i + 1].y + desviacion);
+    ctx.stroke();
   }
-  ctx.stroke();
 
   ctx.restore();
 }
@@ -226,15 +244,17 @@ function dibujarEstelaPlasma(ctx, segmentos, color, invulnerable) {
  * @param {Array} segmentosFantasma - Segmentos del señuelo.
  * @param {string} color - Color base de la estela.
  */
-function dibujarEstelaFantasma(ctx, segmentosFantasma, color) {
+function dibujarEstelaFantasma(ctx, segmentosFantasma, color, opacidad) {
   if (segmentosFantasma.length < 2) return;
+  // Usar la opacidad dinámica del jugador (permite el parpadeo en los últimos ms)
+  const alpha = (typeof opacidad === 'number') ? opacidad : 0.35;
   ctx.save();
 
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = alpha;
   ctx.strokeStyle = color;
   ctx.lineWidth   = CONSTANTES_ESTELA.GROSOR_LINEA;
   ctx.lineCap     = 'round';
-  ctx.setLineDash([5, 8]);
+  ctx.setLineDash([5, 8]); // Línea punteada para distinguirla de la estela real
   ctx.shadowBlur  = 4;
   ctx.shadowColor = color;
 

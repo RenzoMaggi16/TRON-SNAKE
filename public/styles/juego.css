@@ -170,6 +170,62 @@
   color: var(--cyan-oscuro);
 }
 
+/* Indicador de cooldown de salto */
+.hud-salto-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s ease;
+}
+
+.hud-salto-icono {
+  font-size: 0.65rem;
+  transition: opacity 0.2s ease;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+.hud-salto-label {
+  font-family: var(--fuente-ui);
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  flex: 1;
+}
+
+.hud-salto-estado {
+  font-family: var(--fuente-ui);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.5);
+  min-width: 20px;
+  text-align: right;
+}
+
+/* Estado disponible: brilla en verde */
+.hud-salto-contenedor.disponible {
+  border-color: rgba(57, 255, 20, 0.25);
+}
+.hud-salto-contenedor.disponible .hud-salto-icono {
+  color: var(--verde-electrico);
+}
+.hud-salto-contenedor.disponible .hud-salto-estado {
+  color: var(--verde-electrico);
+}
+
+/* Estado cooldown: apagado con pulso naranja */
+.hud-salto-contenedor.cooldown {
+  border-color: rgba(255, 140, 0, 0.2);
+}
+.hud-salto-contenedor.cooldown .hud-salto-estado {
+  color: #FF8C00;
+  animation: turboBajo 0.5s ease-in-out infinite;
+}
+
 /* Centro del HUD */
 .hud-centro {
   text-align: center;

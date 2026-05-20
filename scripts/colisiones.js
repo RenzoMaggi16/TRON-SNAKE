@@ -273,10 +273,22 @@ function teletransportarJugadores(jugadores, par) {
  * @param {Jugador|null} enemigo - Jugador enemigo (si aplica).
  */
 function resolverColision(jugador, estadoJuego, tipoColision, enemigo) {
-  // El escudo absorbe la colisión
+  // El escudo absorbe la colisión — otorga invulnerabilidad post-absorción
   if (jugador.escudoActivo) {
-    jugador.escudoActivo = false;
-    jugador.tiempoEscudo = 0;
+    jugador.escudoActivo    = false;
+    jugador.tiempoEscudo    = 0;
+    // Invulnerabilidad temporal de 1500ms tras absorber el golpe
+    jugador.invulnerable    = true;
+    jugador.tiempoInvulnerable = 1500;
+    jugador.destellando     = true;
+    // Explosión de partículas azul cielo para indicar la absorción
+    crearExplosionParticulas(
+      jugador.posicion.x,
+      jugador.posicion.y,
+      '#87CEEB',
+      estadoJuego.particulas,
+      18
+    );
     reproducirSonido('habilidad');
     return;
   }

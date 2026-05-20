@@ -7,17 +7,20 @@ const CONSTANTES_JUGADOR = {
   RECARGA_TURBO_POR_TICK:  0.5,   // % de turbo que se recarga por frame inactivo
   DURACION_SALTO_MS:       400,   // Milisegundos que dura un salto
   SALTOS_MAXIMOS:          2,     // Cantidad de saltos antes de tocar el suelo
-  SEGMENTOS_GRACIA:     8,    // Segmentos nuevos que no causan colisión propia
-                               // Con velocidad=2: distancia=16px >> tolerancia=5px
+  COOLDOWN_ENTRE_SALTOS:   1500,  // Ms de espera entre saltos consecutivos
+  SEGMENTOS_GRACIA:        8,     // Segmentos nuevos que no causan colisión propia
+                                  // Con velocidad=2: distancia=16px >> tolerancia=5px
   DURACION_INVULNERABLE_MS: 3000, // Ms de invulnerabilidad tras reanimación
   DURACION_DESTELLO_MS:    500,   // Ms de parpadeo al recibir daño
-  LONGITUD_INICIAL:        5,     // Segmentos iniciales de estela
+  LONGITUD_INICIAL:        50,    // Segmentos iniciales de estela
+  LONGITUD_MAXIMA:         200,   // Límite absoluto de segmentos por jugador
+  AUMENTO_POR_ORBE:        10,    // Segmentos que agrega cada orbe de longitud
   RADIO_MOTO:              8,     // Radio de colisión de la moto en píxeles
 };
 
 // Configuración de las 4 motos disponibles
 const CONFIGURACION_MOTOS = {
-  azul: {
+  celeste: {
     nombre:     'Ciclo Azul',
     color:      '#00D4FF',
     colorSecundario: '#0088AA',
@@ -153,11 +156,13 @@ class Jugador {
     this.estelaFantasma  = [];
     this.senueloActivo   = false;
     this.tiempoSenuelo   = 0;
+    this.opacidadSenuelo = 0.35;  // Opacidad del señuelo (parpadea en los últimos 1000ms)
 
     // Salto
     this.saltosDisponibles = CONSTANTES_JUGADOR.SALTOS_MAXIMOS;
     this.enSalto           = false;
     this.tiempoSaltoMs     = 0;
+    this.cooldownSalto     = 0;   // Ms restantes de cooldown entre saltos (0 = disponible)
 
     // Escudo y habilidad
     this.escudoActivo      = false;
@@ -270,6 +275,7 @@ class Jugador {
     this.tiempoSaltoMs     = CONSTANTES_JUGADOR.DURACION_SALTO_MS;
     this.saltosDisponibles -= 1;
     this.escalaSalto        = 0.65; // Visual: moto más pequeña
+    this.cooldownSalto      = CONSTANTES_JUGADOR.COOLDOWN_ENTRE_SALTOS; // Activar cooldown
   }
 
   /**
@@ -280,7 +286,8 @@ class Jugador {
   puedeRealizarSalto() {
     return this.saltosDisponibles > 0
         && !this.enSalto
-        && !this.eliminado;
+        && !this.eliminado
+        && this.cooldownSalto <= 0; // Verificar cooldown entre saltos
   }
 
   /**
@@ -382,14 +389,26 @@ class Jugador {
       }
     }
 
-    // Temporizador del señuelo
+    // Temporizador del señuelo con parpadeo en los últimos 1000ms
     if (this.senueloActivo && this.tiempoSenuelo > 0) {
       this.tiempoSenuelo -= deltaMs;
-      if (this.tiempoSenuelo <= 0) {
-        this.senueloActivo  = false;
-        this.tiempoSenuelo  = 0;
-        this.estelaFantasma = [];
+      // Parpadeo: alternar opacidad rápidamente antes de desaparecer
+      if (this.tiempoSenuelo <= 1000 && this.tiempoSenuelo > 0) {
+        this.opacidadSenuelo = (Math.floor(Date.now() / 150) % 2 === 0) ? 0.35 : 0.08;
+      } else {
+        this.opacidadSenuelo = 0.35;
       }
+      if (this.tiempoSenuelo <= 0) {
+        this.senueloActivo   = false;
+        this.tiempoSenuelo   = 0;
+        this.estelaFantasma  = [];
+        this.opacidadSenuelo = 0.35;
+      }
+    }
+
+    // Reducir cooldown entre saltos
+    if (this.cooldownSalto > 0) {
+      this.cooldownSalto = Math.max(0, this.cooldownSalto - deltaMs);
     }
 
     // Temporizador del orbe cortador
@@ -492,12 +511,14 @@ class Jugador {
     this.saltosDisponibles = CONSTANTES_JUGADOR.SALTOS_MAXIMOS;
     this.enSalto          = false;
     this.tiempoSaltoMs    = 0;
+    this.cooldownSalto    = 0;
     this.escudoActivo     = false;
     this.tiempoEscudo     = 0;
     this.puedeCortar      = false;
     this.tiempoCortador   = 0;
     this.senueloActivo    = false;
     this.tiempoSenuelo    = 0;
+    this.opacidadSenuelo  = 0.35;
     this.empActivo        = false;
     this.tiempoEMP        = 0;
     this.cooldownHabilidad = 0;

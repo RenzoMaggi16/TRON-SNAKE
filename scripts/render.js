@@ -25,99 +25,42 @@ const CONSTANTES_RENDER = {
 // SISTEMA DE SPRITES DE MOTO
 // ============================================================
 
-// Sprites originales cargados desde /images/
-const spriteMotoOscura = new Image();  // spr_bike_0.png  — Jugador 1 (azul/verde)
-const spriteMotoRoja   = new Image();  // spr_bike1_0.png — Jugador 2 (rojo/naranja)
-
-// Cache de sprites tintados: clave = color hex, valor = ImageBitmap
-const cacheTintMoto = {};
+// Sprites específicos por color y dirección (1=horizontal, 2=vertical)
+const spritesMoto = {
+  celeste: { h: new Image(), v: new Image() },
+  rojo:    { h: new Image(), v: new Image() },
+  naranja: { h: new Image(), v: new Image() },
+  verde:   { h: new Image(), v: new Image() }
+};
 
 // Flags de carga de imágenes
 let spritesListos = false;
-let pendienteCarga = 2;
+let pendienteCarga = 8;
 
 /**
- * Precarga los dos sprites de moto desde el servidor.
+ * Precarga todos los sprites desde el servidor.
  * Una vez cargados activa el flag `spritesListos`.
  */
 function precargarSprites() {
   const alCargar = () => {
     pendienteCarga--;
-    if (pendienteCarga === 0) spritesListos = true;
+    if (pendienteCarga <= 0) spritesListos = true;
   };
-  spriteMotoOscura.onload = alCargar;
-  spriteMotoRoja.onload   = alCargar;
-  spriteMotoOscura.onerror = alCargar; // Si falla, no bloquear el juego
-  spriteMotoRoja.onerror   = alCargar;
-  spriteMotoOscura.src = '/images/spr_bike_0.png';
-  spriteMotoRoja.src   = '/images/spr_bike1_0.png';
-}
+  
+  const configurarCarga = (img, src) => {
+    img.onload = alCargar;
+    img.onerror = alCargar;
+    img.src = src;
+  };
 
-/**
- * Devuelve el sprite base que corresponde al tipo de moto del jugador.
- * - spr_bike_0 (oscura): moto azul y verde
- * - spr_bike1_0 (roja):  moto roja y naranja
- * @param {string} tipoMoto - Tipo de moto del jugador.
- * @returns {HTMLImageElement} Sprite base a usar.
- */
-function obtenerSpriteBase(tipoMoto) {
-  if (tipoMoto === 'rojo' || tipoMoto === 'naranja') return spriteMotoRoja;
-  return spriteMotoOscura;
-}
-
-/**
- * Genera un canvas offscreen con el sprite tintado al color del jugador.
- * Técnica: dibujar el sprite, luego aplicar 'source-in' con el color del jugador,
- * después mezclar ambos con 'multiply' para conservar las sombras y detalles.
- * El resultado se guarda en caché para no recrearlo en cada frame.
- * @param {HTMLImageElement} sprite - Sprite base a tintar.
- * @param {string} color - Color hexadecimal del jugador.
- * @returns {HTMLCanvasElement} Canvas offscreen con el sprite tintado.
- */
-function obtenerSpriteTintado(sprite, color) {
-  const clave = `${sprite.src}_${color}`;
-  if (cacheTintMoto[clave]) return cacheTintMoto[clave];
-
-  const w = CONSTANTES_RENDER.ANCHO_SPRITE;
-  const h = CONSTANTES_RENDER.ALTO_SPRITE;
-
-  // Canvas A: sprite original
-  const canvasOriginal = document.createElement('canvas');
-  canvasOriginal.width  = w;
-  canvasOriginal.height = h;
-  const ctxOrig = canvasOriginal.getContext('2d');
-  ctxOrig.drawImage(sprite, 0, 0, w, h);
-
-  // Canvas B: silueta rellena con el color del jugador, recortada por la forma del sprite
-  const canvasTint = document.createElement('canvas');
-  canvasTint.width  = w;
-  canvasTint.height = h;
-  const ctxTint = canvasTint.getContext('2d');
-
-  // 1. Dibujar el sprite para crear la máscara de forma
-  ctxTint.drawImage(sprite, 0, 0, w, h);
-
-  // 2. Aplicar el color del jugador sobre la silueta (respeta la transparencia del sprite)
-  ctxTint.globalCompositeOperation = 'source-in';
-  ctxTint.fillStyle = color;
-  ctxTint.fillRect(0, 0, w, h);
-
-  // Canvas final: combinar el sprite original con el tint usando 'multiply'
-  const canvasFinal = document.createElement('canvas');
-  canvasFinal.width  = w;
-  canvasFinal.height = h;
-  const ctxFinal = canvasFinal.getContext('2d');
-
-  // Base: sprite original (conserva detalles, sombras y ruedas)
-  ctxFinal.drawImage(canvasOriginal, 0, 0);
-
-  // Encima: tint de color con opacidad parcial para que el detalle original se vea
-  ctxFinal.globalAlpha = 0.65;
-  ctxFinal.globalCompositeOperation = 'multiply';
-  ctxFinal.drawImage(canvasTint, 0, 0);
-
-  cacheTintMoto[clave] = canvasFinal;
-  return canvasFinal;
+  configurarCarga(spritesMoto.celeste.h, '/images/celeste1.png');
+  configurarCarga(spritesMoto.celeste.v, '/images/celeste2.png');
+  configurarCarga(spritesMoto.rojo.h,    '/images/rojo1.png');
+  configurarCarga(spritesMoto.rojo.v,    '/images/rojo2.png');
+  configurarCarga(spritesMoto.naranja.h, '/images/naranja1.png');
+  configurarCarga(spritesMoto.naranja.v, '/images/naranja2.png');
+  configurarCarga(spritesMoto.verde.h,   '/images/verde1.png');
+  configurarCarga(spritesMoto.verde.v,   '/images/verde2.png');
 }
 
 // ============================================================
@@ -354,7 +297,7 @@ function dibujarMoto(ctx, jugador) {
 
   ctx.save();
   ctx.translate(jugador.posicion.x, jugador.posicion.y);
-  ctx.rotate(jugador.anguloRotacion);
+  // Ya no usamos rotate general, se maneja direccionalmente en dibujarMotoSprite
   ctx.scale(jugador.escalaSalto, jugador.escalaSalto);
 
   // Glow alrededor de la moto (se aplica antes del sprite para que quede detrás)
@@ -381,35 +324,65 @@ function dibujarMoto(ctx, jugador) {
   }
 }
 
-/**
- * Dibuja la moto usando el sprite PNG tintado al color del jugador.
- * El sprite se centra en (0,0) dado que el contexto ya fue trasladado.
- * La imagen original apunta a la derecha, que coincide con ángulo 0 (dx=1,dy=0).
- * @param {CanvasRenderingContext2D} ctx - Contexto ya trasladado y rotado.
- * @param {Jugador} jugador - Jugador a dibujar.
- */
 function dibujarMotoSprite(ctx, jugador) {
+
+  const spritesColor =
+    spritesMoto[jugador.tipoMoto] || spritesMoto.celeste;
+
+  let img;
+  let anguloSprite = 0;
+
+  const angulo = jugador.anguloRotacion;
+
+  // DERECHA
+  if (angulo === 0) {
+    img = spritesColor.h;
+    anguloSprite = 0;
+  }
+
+  // ABAJO
+  else if (angulo === Math.PI / 2) {
+    img = spritesColor.v;
+    anguloSprite = Math.PI / 2;
+  }
+
+  // IZQUIERDA
+  else if (
+    angulo === Math.PI ||
+    angulo === -Math.PI
+  ) {
+    img = spritesColor.h;
+    anguloSprite = Math.PI;
+  }
+
+  // ARRIBA
+  else if (angulo === -Math.PI / 2) {
+    img = spritesColor.v;
+    anguloSprite = Math.PI / 2; // Rotado 180 grados
+  }
+
+  // Fallback
+  else {
+    img = spritesColor.h;
+    anguloSprite = angulo;
+  }
+
   const w = CONSTANTES_RENDER.ANCHO_SPRITE;
   const h = CONSTANTES_RENDER.ALTO_SPRITE;
 
-  const spriteBase    = obtenerSpriteBase(jugador.tipoMoto);
-  const spriteTintado = obtenerSpriteTintado(spriteBase, jugador.color);
+  ctx.save();
 
-  // Glow extra alrededor del sprite (halo de neón)
-  ctx.shadowBlur  = 14;
-  ctx.shadowColor = jugador.color;
+  ctx.rotate(anguloSprite);
 
-  // Dibujar el sprite centrado en el punto de la moto
-  // (el origen del sprite está en el centro del cuerpo de la moto)
-  ctx.drawImage(spriteTintado, -w / 2, -h / 2, w, h);
+  ctx.drawImage(
+    img,
+    -w / 2,
+    -h / 2,
+    w,
+    h
+  );
 
-  // Segunda pasada sin tint para reforzar el glow sobre el sprite
-  ctx.globalAlpha = 0.25;
-  ctx.globalCompositeOperation = 'screen';
-  ctx.fillStyle = jugador.color;
-  ctx.fillRect(-w / 2, -h / 2, w, h);
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 /**

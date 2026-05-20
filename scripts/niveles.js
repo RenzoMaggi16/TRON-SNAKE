@@ -89,16 +89,20 @@ const NIVELES = [
   {
     id:                    7,
     nombre:                'MODO MAESTRO',
-    descripcion:           'Velocidad máxima. Estelas regenerativas. Caos total.',
-    velocidadBase:         4.5,
-    multiplicadorVelocidad: 2.0,
+    descripcion:           'Velocidad alta. Obstáculos en todos lados. Los portales son obligatorios para ganar.',
+    // Velocidad reducida un 15% respecto a la versión anterior para mayor jugabilidad
+    velocidadBase:         3.8,
+    multiplicadorVelocidad: 1.7,
     obstaculos:            ['estatico', 'horizontal', 'diagonal', 'giratorio'],
     cantidadObstaculos:    10,
     portalActivo:          true,
-    maxOrbes:              7,
-    tiempoSpawnOrbeMs:     2000,
+    maxOrbes:              6,        // Reducido para evitar saturación
+    tiempoSpawnOrbeMs:     2500,     // Más tiempo entre orbes
     colorGrid:             'rgba(255, 0, 100, 0.05)',
-    estelaRegenerativa:    true, // Los segmentos se acumulan sin expirar
+    estelaRegenerativa:    false,    // Las estelas se borran normalmente
+    // Mecánica especial: bonus de puntos al usar el portal
+    portalOtorgaBonus:     true,
+    bonusPortal:           500,
   },
 ];
 
