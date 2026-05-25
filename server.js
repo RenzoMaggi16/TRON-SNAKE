@@ -23,6 +23,7 @@ app.use((req, res, next) => {
 app.use('/styles',  express.static(path.join(__dirname, 'public', 'styles')));
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 app.use('/images',  express.static(path.join(__dirname, 'public', 'images')));
+app.use('/sounds',  express.static(path.join(__dirname, 'public', 'Sounds')));
 app.use('/public',  express.static(path.join(__dirname, 'public')));
 
 

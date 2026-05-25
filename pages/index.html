@@ -38,6 +38,7 @@
         <ul class="navbar-nav ms-auto gap-2">
           <li class="nav-item"><a class="nav-link active" href="/" aria-current="page">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="/juego">Juego</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="abrirAjustes()">Ajustes</a></li>
           <li class="nav-item"><a class="nav-link" href="/instrucciones">Instrucciones</a></li>
           <li class="nav-item"><a class="nav-link" href="/jugadores">Jugadores</a></li>
           <li class="nav-item"><a class="nav-link" href="/marcador">Marcador</a></li>
@@ -65,6 +66,10 @@
           <span class="icono-boton" aria-hidden="true">▶</span>
           <span>Iniciar Partida</span>
         </a>
+        <button class="boton-menu boton-menu-secundario" id="botonAjustes" onclick="abrirAjustes()">
+          <span class="icono-boton" aria-hidden="true">⚙</span>
+          <span>Ajustes</span>
+        </button>
         <a href="/jugadores" class="boton-menu boton-menu-secundario" id="botonGestionarJugadores" role="button">
           <span class="icono-boton" aria-hidden="true">👤</span>
           <span>Gestionar Jugadores</span>
@@ -110,6 +115,7 @@
   <!-- Módulos del juego necesarios en el menú -->
   <script src="/scripts/utilidades.js"></script>
   <script src="/scripts/usuarios.js"></script>
+  <script src="/scripts/audio.js"></script>
   <script src="/scripts/menu.js"></script>
 </body>
 </html>

@@ -1,308 +1,311 @@
-// audio.js — Sistema de audio procedural con Web Audio API.
-// Todos los sonidos se generan en tiempo real, sin archivos externos.
-
-// Variable global para el sistema de audio (se inicializa al primer input del usuario)
-let sistemaAudio = null;
-
-// ============================================================
-// CLASE SISTEMA DE AUDIO
-// ============================================================
-
-class SistemaAudio {
-  constructor() {
-    // El AudioContext requiere un gesto del usuario para iniciarse en navegadores modernos
-    this.contexto        = new (window.AudioContext || window.webkitAudioContext)();
-    this.volumenMaestro  = this.contexto.createGain();
-    this.volumenMaestro.connect(this.contexto.destination);
-    this.volumenMaestro.gain.value = 0.5;
-
-    // Nodo de efectos: compresor para evitar picos de volumen
-    this.compresor = this.contexto.createDynamicsCompressor();
-    this.compresor.connect(this.volumenMaestro);
-
-    // Nodo para la música ambiente (loop electrónico)
-    this.nodoMusicaAmbiente = null;
-    this.musicaActiva       = false;
-  }
-
-  /**
-   * Crea y devuelve un oscilador básico conectado al compresor.
-   * Función base reutilizada por todos los sonidos.
-   * @param {string} tipo - Tipo de onda: 'sine' | 'square' | 'sawtooth' | 'triangle'.
-   * @param {number} frecuencia - Frecuencia en Hz.
-   * @returns {{oscilador:OscillatorNode, ganancia:GainNode}} Nodos creados.
-   */
-  crearOscilador(tipo, frecuencia) {
-    const oscilador = this.contexto.createOscillator();
-    const ganancia  = this.contexto.createGain();
-    oscilador.type      = tipo;
-    oscilador.frequency.value = frecuencia;
-    oscilador.connect(ganancia);
-    ganancia.connect(this.compresor);
-    return { oscilador, ganancia };
-  }
-
-  /**
-   * Reproduce el sonido del turbo: tono ascendente sawtooth de 200→800Hz en 0.3s.
-   */
-  reproducirTurbo() {
-    const { oscilador, ganancia } = this.crearOscilador('sawtooth', 200);
-    const ahora = this.contexto.currentTime;
-
-    oscilador.frequency.setValueAtTime(200, ahora);
-    oscilador.frequency.exponentialRampToValueAtTime(800, ahora + 0.25);
-
-    ganancia.gain.setValueAtTime(0.08, ahora);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.35);
-
-    oscilador.start(ahora);
-    oscilador.stop(ahora + 0.35);
-  }
-
-  /**
-   * Reproduce el sonido de colisión: ruido filtrado con decay rápido.
-   */
-  reproducirColision() {
-    const bufferSize = this.contexto.sampleRate * 0.15;
-    const buffer     = this.contexto.createBuffer(1, bufferSize, this.contexto.sampleRate);
-    const datos      = buffer.getChannelData(0);
-
-    // Llenar buffer con ruido blanco
-    for (let i = 0; i < bufferSize; i++) {
-      datos[i] = (Math.random() * 2 - 1);
-    }
-
-    const fuente  = this.contexto.createBufferSource();
-    const filtro  = this.contexto.createBiquadFilter();
-    const ganancia = this.contexto.createGain();
-
-    fuente.buffer = buffer;
-    filtro.type   = 'lowpass';
-    filtro.frequency.value = 600;
-
-    const ahora = this.contexto.currentTime;
-    ganancia.gain.setValueAtTime(0.4, ahora);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.15);
-
-    fuente.connect(filtro);
-    filtro.connect(ganancia);
-    ganancia.connect(this.compresor);
-    fuente.start(ahora);
-  }
-
-  /**
-   * Reproduce el sonido al recoger un orbe: tono breve sine wave a 880Hz.
-   */
-  reproducirOrbe() {
-    const { oscilador, ganancia } = this.crearOscilador('sine', 880);
-    const ahora = this.contexto.currentTime;
-
-    ganancia.gain.setValueAtTime(0.12, ahora);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.2);
-
-    // Pequeña subida de tono al final para que suene "positivo"
-    oscilador.frequency.setValueAtTime(880, ahora);
-    oscilador.frequency.setValueAtTime(1100, ahora + 0.1);
-
-    oscilador.start(ahora);
-    oscilador.stop(ahora + 0.22);
-  }
-
-  /**
-   * Reproduce el sonido de activar una habilidad: arpegio de 3 notas cortas.
-   */
-  reproducirHabilidad() {
-    const notas   = [440, 550, 660];
-    const ahora   = this.contexto.currentTime;
-
-    notas.forEach((frecuencia, i) => {
-      const { oscilador, ganancia } = this.crearOscilador('triangle', frecuencia);
-      const inicio = ahora + i * 0.07;
-      ganancia.gain.setValueAtTime(0, inicio);
-      ganancia.gain.linearRampToValueAtTime(0.1, inicio + 0.02);
-      ganancia.gain.exponentialRampToValueAtTime(0.001, inicio + 0.1);
-      oscilador.start(inicio);
-      oscilador.stop(inicio + 0.12);
-    });
-  }
-
-  /**
-   * Reproduce el sonido de salto: sweep ascendente de 300→600Hz.
-   */
-  reproducirSalto() {
-    const { oscilador, ganancia } = this.crearOscilador('triangle', 300);
-    const ahora = this.contexto.currentTime;
-
-    oscilador.frequency.setValueAtTime(300, ahora);
-    oscilador.frequency.exponentialRampToValueAtTime(600, ahora + 0.15);
-
-    ganancia.gain.setValueAtTime(0.08, ahora);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.2);
-
-    oscilador.start(ahora);
-    oscilador.stop(ahora + 0.22);
-  }
-
-  /**
-   * Reproduce el sonido de portal: tono complejo con efecto de eco simulado.
-   */
-  reproducirPortal() {
-    const frecuencias = [220, 440, 330];
-    const ahora       = this.contexto.currentTime;
-
-    frecuencias.forEach((frec, i) => {
-      const { oscilador, ganancia } = this.crearOscilador('sine', frec);
-      const inicio = ahora + i * 0.04;
-      ganancia.gain.setValueAtTime(0.12, inicio);
-      ganancia.gain.exponentialRampToValueAtTime(0.001, inicio + 0.4);
-
-      oscilador.frequency.setValueAtTime(frec, inicio);
-      oscilador.frequency.exponentialRampToValueAtTime(frec * 1.5, inicio + 0.2);
-
-      oscilador.start(inicio);
-      oscilador.stop(inicio + 0.45);
-    });
-  }
-
-  /**
-   * Reproduce la melodía de victoria: 5 notas ascendentes en Do mayor.
-   */
-  reproducirVictoria() {
-    // Escala de Do mayor: Do Re Mi Sol La
-    const notas  = [261.63, 293.66, 329.63, 392.00, 440.00];
-    const ahora  = this.contexto.currentTime;
-    const pausa  = 0.12;
-
-    notas.forEach((frecuencia, i) => {
-      const { oscilador, ganancia } = this.crearOscilador('triangle', frecuencia);
-      const inicio = ahora + i * pausa;
-      ganancia.gain.setValueAtTime(0, inicio);
-      ganancia.gain.linearRampToValueAtTime(0.15, inicio + 0.02);
-      ganancia.gain.exponentialRampToValueAtTime(0.001, inicio + pausa * 1.5);
-      oscilador.start(inicio);
-      oscilador.stop(inicio + pausa * 2);
-    });
-  }
-
-  /**
-   * Reproduce el sonido de eliminación definitiva: descenso de tono 0.5s.
-   */
-  reproducirEliminacion() {
-    const { oscilador, ganancia } = this.crearOscilador('sawtooth', 400);
-    const ahora = this.contexto.currentTime;
-
-    oscilador.frequency.setValueAtTime(400, ahora);
-    oscilador.frequency.exponentialRampToValueAtTime(80, ahora + 0.5);
-
-    ganancia.gain.setValueAtTime(0.15, ahora);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.55);
-
-    oscilador.start(ahora);
-    oscilador.stop(ahora + 0.6);
-  }
-
-  /**
-   * Inicia la música ambiente: pulso electrónico con osciladores a ~110 BPM.
-   * Se ejecuta en loop de fondo mientras el juego está activo.
-   */
-  iniciarMusicaAmbiente() {
-    if (this.musicaActiva) return;
-    this.musicaActiva = true;
-
-    // BPM 110 → intervalo = 60000/110 ≈ 545ms por beat
-    const bpmMs = 545;
-
-    // Acorde de fondo (notas graves) que pulsa al ritmo
-    const tocarPulsoBeatAmbiente = () => {
-      if (!this.musicaActiva) return;
-      const { oscilador, ganancia } = this.crearOscilador('sine', 55);
-      const ahora = this.contexto.currentTime;
-      ganancia.gain.setValueAtTime(0, ahora);
-      ganancia.gain.linearRampToValueAtTime(0.06, ahora + 0.02);
-      ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.4);
-      oscilador.start(ahora);
-      oscilador.stop(ahora + 0.45);
-      setTimeout(tocarPulsoBeatAmbiente, bpmMs);
-    };
-
-    // Melodía de fondo sutil
-    const tocarMelodiaAmbiente = () => {
-      if (!this.musicaActiva) return;
-      const notas   = [110, 130, 110, 98, 110, 130, 146, 130];
-      const duracion = bpmMs * 2;
-      notas.forEach((frec, i) => {
-        setTimeout(() => {
-          if (!this.musicaActiva) return;
-          const { oscilador, ganancia } = this.crearOscilador('triangle', frec);
-          const ahora = this.contexto.currentTime;
-          ganancia.gain.setValueAtTime(0.025, ahora);
-          ganancia.gain.exponentialRampToValueAtTime(0.001, ahora + 0.4);
-          oscilador.start(ahora);
-          oscilador.stop(ahora + 0.45);
-        }, i * bpmMs);
-      });
-      setTimeout(tocarMelodiaAmbiente, notas.length * bpmMs);
-    };
-
-    tocarPulsoBeatAmbiente();
-    setTimeout(tocarMelodiaAmbiente, bpmMs * 2);
-  }
-
-  /**
-   * Detiene la música ambiente.
-   */
-  detenerMusicaAmbiente() {
-    this.musicaActiva = false;
-  }
-
-  /**
-   * Ajusta el volumen maestro del sistema.
-   * @param {number} nivel - Nivel de volumen (0 a 1).
-   */
-  ajustarVolumen(nivel) {
-    this.volumenMaestro.gain.value = clamp(nivel, 0, 1);
-  }
-}
-
-// ============================================================
-// API PÚBLICA DE AUDIO (llamada desde otros módulos)
-// ============================================================
-
 /**
- * Inicializa el sistema de audio tras el primer gesto del usuario.
- * El AudioContext requiere interacción para iniciarse en navegadores modernos.
+ * audio.js — Sistema de audio renovado para SnakeTron.
+ * Centraliza la carga y reproducción de archivos .wav.
  */
-function inicializarAudio() {
-  if (!sistemaAudio) {
+
+const SoundManager = {
+  // Configuración de rutas y archivos
+  BASE_PATH: '/sounds/',
+  sounds: {},
+  muted: false,
+  
+  // Volúmenes predeterminados según requisitos
+  volumes: {
+    bgm: 0.4,
+    engine: 0.5,
+    sfx: 0.7,
+    ui: 0.6
+  },
+
+  // Clave para localStorage
+  STORAGE_KEY: 'arenaTron_volumen',
+
+  // Definición de todos los assets de audio
+  assets: {
+    // UI Sounds
+    ui_hover:     { file: 'ui_hover.wav',     type: 'ui' },
+    ui_select:    { file: 'ui_select.wav',    type: 'ui' },
+    ui_navigate:  { file: 'ui_navigate.wav',  type: 'ui' },
+    ui_countdown: { file: 'ui_countdown.wav', type: 'ui' },
+
+    // Bike / Player Actions
+    fx_bike_engine_loop: { file: 'fx_bike_engine_loop.wav', type: 'engine', loop: true },
+    fx_bike_turn:        { file: 'fx_bike_turn.wav',        type: 'sfx' },
+    fx_bike_boost:       { file: 'fx_bike_boost.wav',       type: 'sfx' },
+    fx_bike_jump:        { file: 'fx_bike_jump.wav',        type: 'sfx' },
+
+    // Game Events
+    fx_item_orb:         { file: 'fx_item_orb.wav',         type: 'sfx' },
+    fx_ability_activate: { file: 'fx_ability_activate.wav', type: 'sfx' },
+    fx_env_portal:       { file: 'fx_env_portal.wav',       type: 'sfx' },
+    fx_crash_explosion:  { file: 'fx_crash_explosion.wav',  type: 'sfx' },
+    fx_player_death:     { file: 'fx_player_death.wav',     type: 'sfx' },
+
+    // Music
+    bgm_main_menu:       { file: 'bgm_main_menu.wav',       type: 'bgm', loop: true },
+    bgm_combat_loop:     { file: 'bgm_combat_loop.wav',     type: 'bgm', loop: true },
+    bgm_stinger_victory: { file: 'bgm_stinger_victory.wav', type: 'bgm' }
+  },
+
+  /**
+   * Inicializa y precarga todos los sonidos.
+   */
+  init() {
+    this.loadVolumes();
+    for (const [key, config] of Object.entries(this.assets)) {
+      const audio = new Audio(this.BASE_PATH + config.file);
+      audio.loop = config.loop || false;
+      audio.volume = this.volumes[config.type] || 0.7;
+      audio.preload = 'auto';
+      this.sounds[key] = audio;
+    }
+  },
+
+  /**
+   * Carga los volúmenes desde localStorage si existen.
+   */
+  loadVolumes() {
     try {
-      sistemaAudio = new SistemaAudio();
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        this.volumes = { ...this.volumes, ...parsed };
+      }
     } catch (e) {
-      // El audio no está disponible en este navegador
-      sistemaAudio = null;
+      console.warn('No se pudieron cargar los ajustes de volumen');
     }
+  },
+
+  /**
+   * Guarda los volúmenes actuales en localStorage.
+   */
+  saveVolumes() {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.volumes));
+  },
+
+  /**
+   * Reproduce un sonido por su nombre.
+   * Maneja SFX superpuestos mediante clonación.
+   * @param {string} name - Nombre del sonido.
+   */
+  play(name) {
+    const sound = this.sounds[name];
+    if (!sound || this.muted) return;
+
+    // Si es música, detener otras pistas de música primero (canal exclusivo)
+    if (this.assets[name].type === 'bgm') {
+      this.stopAllBGM();
+    }
+
+    try {
+      // Para SFX cortos, usamos cloneNode para permitir superposición
+      if (this.assets[name].type !== 'bgm' && this.assets[name].type !== 'engine' && !this.assets[name].loop) {
+        const clone = sound.cloneNode(true);
+        clone.volume = sound.volume;
+        const playPromise = clone.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => { /* Silenciar error de autoplay */ });
+        }
+      } else {
+        // Para BGM y loops, reproducir el objeto original
+        const playPromise = sound.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => { /* Silenciar error de autoplay */ });
+        }
+      }
+    } catch (err) {
+      console.warn(`Error al reproducir ${name}:`, err);
+    }
+  },
+
+  /**
+   * Detiene un sonido específico y lo reinicia al principio.
+   * @param {string} name - Nombre del sonido.
+   */
+  stop(name) {
+    const sound = this.sounds[name];
+    if (sound) {
+      sound.pause();
+      sound.currentTime = 0;
+    }
+  },
+
+  /**
+   * Detiene todas las pistas de música de fondo (BGM).
+   */
+  stopAllBGM() {
+    for (const [key, config] of Object.entries(this.assets)) {
+      if (config.type === 'bgm') {
+        this.stop(key);
+      }
+    }
+  },
+
+  /**
+   * Detiene todos los sonidos del juego (útil al morir o cambiar de estado).
+   */
+  stopAll() {
+    for (const key in this.sounds) {
+      this.stop(key);
+    }
+  },
+
+  /**
+   * Silencia todo el audio del sistema.
+   */
+  mute() {
+    this.muted = true;
+    for (const key in this.sounds) {
+      this.sounds[key].pause();
+    }
+  },
+
+  /**
+   * Reactiva el audio del sistema.
+   */
+  unmute() {
+    this.muted = false;
+  },
+
+  /**
+   * Cambia el volumen de una categoría.
+   * @param {string} type - 'bgm', 'engine', 'sfx', 'ui'.
+   * @param {number} level - 0.0 a 1.0.
+   */
+  setVolume(type, level) {
+    if (this.volumes[type] !== undefined) {
+      this.volumes[type] = level;
+      for (const [key, config] of Object.entries(this.assets)) {
+        if (config.type === type && this.sounds[key]) {
+          this.sounds[key].volume = level;
+        }
+      }
+      this.saveVolumes();
+    }
+  },
+
+  /**
+   * Agrega manejadores de sonido (hover y click) a todos los elementos interactivos.
+   */
+  attachUIHandlers() {
+    const selector = 'button, a, .opcion-moto, .opcion-nivel, .nav-link, .navbar-brand, select, input[type="button"], input[type="submit"]';
+    const elements = document.querySelectorAll(selector);
+    
+    elements.forEach(el => {
+      // Evitar duplicados si se llama varias veces
+      if (el._soundHandlersAttached) return;
+      
+      el.addEventListener('mouseenter', () => SoundManager.play('ui_hover'));
+      el.addEventListener('click', () => SoundManager.play('ui_select'));
+      
+      el._soundHandlersAttached = true;
+    });
+  },
+
+  /**
+   * Inyecta el HTML del modal de ajustes si no existe en la página.
+   */
+  injectSettingsModal() {
+    if (document.getElementById('overlayAjustes')) return;
+
+    const modalHTML = `
+      <div id="overlayAjustes" class="overlay-ajustes" role="dialog" aria-modal="true" aria-label="Ajustes de Sonido">
+        <div class="panel-ajustes">
+          <h2 class="titulo-ajustes">Configuración</h2>
+          
+          <div class="grupo-ajuste">
+            <div class="label-ajuste">
+              <span>Música</span>
+              <span id="valorMusica" class="valor-ajuste">40%</span>
+            </div>
+            <input type="range" id="sliderMusica" class="slider-ajuste" min="0" max="100" value="40">
+          </div>
+
+          <div class="grupo-ajuste">
+            <div class="label-ajuste">
+              <span>Efectos (SFX)</span>
+              <span id="valorSFX" class="valor-ajuste">70%</span>
+            </div>
+            <input type="range" id="sliderSFX" class="slider-ajuste" min="0" max="100" value="70">
+          </div>
+
+          <div class="grupo-ajuste">
+            <div class="label-ajuste">
+              <span>Motor</span>
+              <span id="valorMotor" class="valor-ajuste">50%</span>
+            </div>
+            <input type="range" id="sliderMotor" class="slider-ajuste" min="0" max="100" value="50">
+          </div>
+
+          <div class="grupo-ajuste">
+            <div class="label-ajuste">
+              <span>Interfaz (UI)</span>
+              <span id="valorUI" class="valor-ajuste">60%</span>
+            </div>
+            <input type="range" id="sliderUI" class="slider-ajuste" min="0" max="100" value="60">
+          </div>
+
+          <div class="botones-ajustes">
+            <button class="boton-neon" onclick="cerrarAjustes()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
   }
-}
+};
 
 /**
- * Reproduce un sonido por nombre de evento.
- * Esta función es el punto de entrada desde cualquier otro módulo.
- * @param {string} evento - Nombre del evento de audio.
+ * Funciones globales para controlar el modal de ajustes
  */
-function reproducirSonido(evento) {
-  if (!sistemaAudio) return;
-  // Reanudar el contexto si estaba suspendido por política del navegador
-  if (sistemaAudio.contexto.state === 'suspended') {
-    sistemaAudio.contexto.resume();
-  }
+function abrirAjustes() {
+  const overlay = document.getElementById('overlayAjustes');
+  if (!overlay) return;
 
-  switch (evento) {
-    case 'turbo':      sistemaAudio.reproducirTurbo();      break;
-    case 'colision':   sistemaAudio.reproducirColision();   break;
-    case 'orbe':       sistemaAudio.reproducirOrbe();       break;
-    case 'habilidad':  sistemaAudio.reproducirHabilidad();  break;
-    case 'salto':      sistemaAudio.reproducirSalto();      break;
-    case 'portal':     sistemaAudio.reproducirPortal();     break;
-    case 'victoria':   sistemaAudio.reproducirVictoria();   break;
-    case 'eliminacion':sistemaAudio.reproducirEliminacion();break;
-  }
+  // Sincronizar sliders con volúmenes actuales
+  const mappings = [
+    { id: 'sliderMusica', valId: 'valorMusica', type: 'bgm' },
+    { id: 'sliderSFX',    valId: 'valorSFX',    type: 'sfx' },
+    { id: 'sliderMotor',  valId: 'valorMotor',  type: 'engine' },
+    { id: 'sliderUI',     valId: 'valorUI',     type: 'ui' }
+  ];
+
+  mappings.forEach(m => {
+    const slider = document.getElementById(m.id);
+    const label  = document.getElementById(m.valId);
+    if (slider) {
+      const vol = SoundManager.volumes[m.type];
+      slider.value = vol * 100;
+      if (label) label.textContent = `${Math.round(vol * 100)}%`;
+
+      // Añadir listener de cambio en tiempo real
+      slider.oninput = () => {
+        const val = slider.value / 100;
+        if (label) label.textContent = `${slider.value}%`;
+        SoundManager.setVolume(m.type, val);
+      };
+    }
+  });
+
+  overlay.classList.add('visible');
 }
+
+function cerrarAjustes() {
+  const overlay = document.getElementById('overlayAjustes');
+  if (overlay) overlay.classList.remove('visible');
+  SoundManager.play('ui_select');
+}
+
+// Inicializar automáticamente al cargar el script
+SoundManager.init();
+
+// Escuchar el DOM para aplicar sonidos a la interfaz
+document.addEventListener('DOMContentLoaded', () => {
+  SoundManager.injectSettingsModal();
+  SoundManager.attachUIHandlers();
+  
+  // Iniciar música de menú si no estamos en la página de juego
+  if (!window.location.pathname.includes('juego')) {
+    SoundManager.play('bgm_main_menu');
+  }
+});

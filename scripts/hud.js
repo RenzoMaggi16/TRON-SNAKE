@@ -256,6 +256,8 @@ function mostrarContadorInicio(desde, alTerminar) {
   overlay.innerHTML = '';
   overlay.style.display = 'flex';
 
+  SoundManager.play('ui_countdown');
+
   let actual = desde;
 
   const mostrarNumero = () => {
@@ -326,7 +328,9 @@ function mostrarFinPartida(ganador, estadoJuego) {
     formatearTiempo(Math.floor(estadoJuego.tiempoTranscurrido / 1000));
 
   overlay.classList.add('visible');
-  reproducirSonido('victoria');
+  if (ganador) {
+    SoundManager.play('bgm_stinger_victory');
+  }
 }
 
 /**

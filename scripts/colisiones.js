@@ -158,7 +158,7 @@ function verificarRecoleccionDeOrbes(estadoJuego) {
           `+${PUNTOS_ORBE[orbe.tipo] || 100}`,
           orbe.color
         );
-        reproducirSonido('orbe');
+        SoundManager.play('fx_item_orb');
       }
     });
   });
@@ -239,7 +239,7 @@ function cortarEstelaEnemiga(cortador, enemigo, estadoJuego) {
     12
   );
 
-  reproducirSonido('habilidad');
+  SoundManager.play('fx_ability_activate');
 }
 
 /**
@@ -257,7 +257,7 @@ function teletransportarJugadores(jugadores, par) {
     jugador.posicion = { x: destino.x, y: destino.y };
     jugador.sumarPuntaje(200, 1); // Puntaje fijo por usar portal (sin multiplicador)
   });
-  reproducirSonido('portal');
+  SoundManager.play('fx_env_portal');
 }
 
 // ============================================================
@@ -289,7 +289,7 @@ function resolverColision(jugador, estadoJuego, tipoColision, enemigo) {
       estadoJuego.particulas,
       18
     );
-    reproducirSonido('habilidad');
+    SoundManager.play('fx_ability_activate');
     return;
   }
 
@@ -302,7 +302,7 @@ function resolverColision(jugador, estadoJuego, tipoColision, enemigo) {
     20
   );
 
-  reproducirSonido('colision');
+  SoundManager.play('fx_crash_explosion');
 
   const puedeReanimar = jugador.recibirDano();
 
@@ -311,6 +311,10 @@ function resolverColision(jugador, estadoJuego, tipoColision, enemigo) {
     iniciarReanimacion(jugador, estadoJuego);
   } else if (jugador.eliminado) {
     // Si no tiene más vidas, terminar la partida
+    setTimeout(() => {
+      SoundManager.play('fx_player_death');
+    }, 300);
+    
     const ganador = estadoJuego.jugadores.find(j => j.id !== jugador.id && !j.eliminado);
     if (ganador) {
       ganador.sumarPuntaje(1000, estadoJuego.nivelActual);

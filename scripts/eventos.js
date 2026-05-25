@@ -124,15 +124,19 @@ function procesarEntradasJugador(jugador, teclas, enemigo, flagKey) {
   if (!estadoEntrada[`${flagKey}CambioEsteFrame`]) {
 
     if (teclasPresionadas[teclas.arriba]) {
+      if (jugador.direccion.dy !== -1) SoundManager.play('fx_bike_turn');
       jugador.cambiarDireccion({ dx: 0, dy: -1 });
       estadoEntrada[`${flagKey}CambioEsteFrame`] = true;
     } else if (teclasPresionadas[teclas.abajo]) {
+      if (jugador.direccion.dy !== 1) SoundManager.play('fx_bike_turn');
       jugador.cambiarDireccion({ dx: 0, dy: 1 });
       estadoEntrada[`${flagKey}CambioEsteFrame`] = true;
     } else if (teclasPresionadas[teclas.izquierda]) {
+      if (jugador.direccion.dx !== -1) SoundManager.play('fx_bike_turn');
       jugador.cambiarDireccion({ dx: -1, dy: 0 });
       estadoEntrada[`${flagKey}CambioEsteFrame`] = true;
     } else if (teclasPresionadas[teclas.derecha]) {
+      if (jugador.direccion.dx !== 1) SoundManager.play('fx_bike_turn');
       jugador.cambiarDireccion({ dx: 1, dy: 0 });
       estadoEntrada[`${flagKey}CambioEsteFrame`] = true;
     }
@@ -140,6 +144,9 @@ function procesarEntradasJugador(jugador, teclas, enemigo, flagKey) {
 
   // === TURBO ===
   if (teclasPresionadas[teclas.turbo] || teclasPresionadas[teclas.turbo.toLowerCase()]) {
+    if (!jugador.turboActivo && jugador.turboDisponible > 0 && !jugador.empActivo) {
+      SoundManager.play('fx_bike_boost');
+    }
     jugador.activarTurbo();
   } else {
     jugador.desactivarTurbo();
@@ -149,8 +156,10 @@ function procesarEntradasJugador(jugador, teclas, enemigo, flagKey) {
   // La lógica de edge-trigger se maneja con el flag en el objeto jugador
   if ((teclasPresionadas[teclas.salto] || teclasPresionadas[teclas.salto?.toLowerCase()])
        && !jugador._teclasSaltoPrevias) {
-    jugador.iniciarSalto();
-    reproducirSonido('salto');
+    if (jugador.puedeRealizarSalto()) {
+      jugador.iniciarSalto();
+      SoundManager.play('fx_bike_jump');
+    }
   }
   jugador._teclasSaltoPrevias = teclasPresionadas[teclas.salto]
     || teclasPresionadas[teclas.salto?.toLowerCase()];
@@ -159,9 +168,9 @@ function procesarEntradasJugador(jugador, teclas, enemigo, flagKey) {
   const habPresionada = teclasPresionadas[teclas.habilidad]
     || teclasPresionadas[teclas.habilidad?.toLowerCase()];
   if (habPresionada && !jugador._teclasHabilidadPrevias) {
-    jugador.activarHabilidad(enemigo);
-    if (jugador.cooldownHabilidad > 0) {
-      reproducirSonido('habilidad');
+    if (jugador.cooldownHabilidad <= 0 && !jugador.eliminado) {
+      jugador.activarHabilidad(enemigo);
+      SoundManager.play('fx_ability_activate');
     }
   }
   jugador._teclasHabilidadPrevias = habPresionada;
@@ -187,21 +196,21 @@ function inicializarControlesTactiles(jugadores) {
 
   const asignaciones = [
     // Jugador 1
-    { idBtn: 'dpadJ1Up',     accion: () => jugadores[0].cambiarDireccion({ dx: 0, dy: -1 }) },
-    { idBtn: 'dpadJ1Down',   accion: () => jugadores[0].cambiarDireccion({ dx: 0, dy: 1 }) },
-    { idBtn: 'dpadJ1Left',   accion: () => jugadores[0].cambiarDireccion({ dx: -1, dy: 0 }) },
-    { idBtn: 'dpadJ1Right',  accion: () => jugadores[0].cambiarDireccion({ dx: 1, dy: 0 }) },
-    { idBtn: 'dpadJ1Turbo',  accion: () => jugadores[0].activarTurbo(), esToggle: true },
-    { idBtn: 'dpadJ1Salto',  accion: () => { jugadores[0].iniciarSalto(); reproducirSonido('salto'); } },
-    { idBtn: 'dpadJ1Hab',    accion: () => { jugadores[0].activarHabilidad(jugadores[1]); reproducirSonido('habilidad'); } },
+    { idBtn: 'dpadJ1Up',     accion: () => { if (jugadores[0].direccion.dy !== -1) SoundManager.play('fx_bike_turn'); jugadores[0].cambiarDireccion({ dx: 0, dy: -1 }); } },
+    { idBtn: 'dpadJ1Down',   accion: () => { if (jugadores[0].direccion.dy !== 1) SoundManager.play('fx_bike_turn'); jugadores[0].cambiarDireccion({ dx: 0, dy: 1 }); } },
+    { idBtn: 'dpadJ1Left',   accion: () => { if (jugadores[0].direccion.dx !== -1) SoundManager.play('fx_bike_turn'); jugadores[0].cambiarDireccion({ dx: -1, dy: 0 }); } },
+    { idBtn: 'dpadJ1Right',  accion: () => { if (jugadores[0].direccion.dx !== 1) SoundManager.play('fx_bike_turn'); jugadores[0].cambiarDireccion({ dx: 1, dy: 0 }); } },
+    { idBtn: 'dpadJ1Turbo',  accion: () => { if (!jugadores[0].turboActivo) SoundManager.play('fx_bike_boost'); jugadores[0].activarTurbo(); }, esToggle: true },
+    { idBtn: 'dpadJ1Salto',  accion: () => { if (jugadores[0].puedeRealizarSalto()) { jugadores[0].iniciarSalto(); SoundManager.play('fx_bike_jump'); } } },
+    { idBtn: 'dpadJ1Hab',    accion: () => { if (jugadores[0].cooldownHabilidad <= 0) { jugadores[0].activarHabilidad(jugadores[1]); SoundManager.play('fx_ability_activate'); } } },
     // Jugador 2
-    { idBtn: 'dpadJ2Up',     accion: () => jugadores[1].cambiarDireccion({ dx: 0, dy: -1 }) },
-    { idBtn: 'dpadJ2Down',   accion: () => jugadores[1].cambiarDireccion({ dx: 0, dy: 1 }) },
-    { idBtn: 'dpadJ2Left',   accion: () => jugadores[1].cambiarDireccion({ dx: -1, dy: 0 }) },
-    { idBtn: 'dpadJ2Right',  accion: () => jugadores[1].cambiarDireccion({ dx: 1, dy: 0 }) },
-    { idBtn: 'dpadJ2Turbo',  accion: () => jugadores[1].activarTurbo(), esToggle: true },
-    { idBtn: 'dpadJ2Salto',  accion: () => { jugadores[1].iniciarSalto(); reproducirSonido('salto'); } },
-    { idBtn: 'dpadJ2Hab',    accion: () => { jugadores[1].activarHabilidad(jugadores[0]); reproducirSonido('habilidad'); } },
+    { idBtn: 'dpadJ2Up',     accion: () => { if (jugadores[1].direccion.dy !== -1) SoundManager.play('fx_bike_turn'); jugadores[1].cambiarDireccion({ dx: 0, dy: -1 }); } },
+    { idBtn: 'dpadJ2Down',   accion: () => { if (jugadores[1].direccion.dy !== 1) SoundManager.play('fx_bike_turn'); jugadores[1].cambiarDireccion({ dx: 0, dy: 1 }); } },
+    { idBtn: 'dpadJ2Left',   accion: () => { if (jugadores[1].direccion.dx !== -1) SoundManager.play('fx_bike_turn'); jugadores[1].cambiarDireccion({ dx: -1, dy: 0 }); } },
+    { idBtn: 'dpadJ2Right',  accion: () => { if (jugadores[1].direccion.dx !== 1) SoundManager.play('fx_bike_turn'); jugadores[1].cambiarDireccion({ dx: 1, dy: 0 }); } },
+    { idBtn: 'dpadJ2Turbo',  accion: () => { if (!jugadores[1].turboActivo) SoundManager.play('fx_bike_boost'); jugadores[1].activarTurbo(); }, esToggle: true },
+    { idBtn: 'dpadJ2Salto',  accion: () => { if (jugadores[1].puedeRealizarSalto()) { jugadores[1].iniciarSalto(); SoundManager.play('fx_bike_jump'); } } },
+    { idBtn: 'dpadJ2Hab',    accion: () => { if (jugadores[1].cooldownHabilidad <= 0) { jugadores[1].activarHabilidad(jugadores[0]); SoundManager.play('fx_ability_activate'); } } },
   ];
 
   asignaciones.forEach(({ idBtn, accion }) => {

@@ -178,9 +178,10 @@ function configurarPartida(nivel, motoJ1, motoJ2, idPerfil1, idPerfil2) {
   // Configurar el HUD con los datos de los jugadores
   configurarHUDParaPartida(estadoJuego.jugadores);
 
-  // Inicializar el sistema de audio (requiere gesto del usuario)
-  inicializarAudio();
-  if (sistemaAudio) sistemaAudio.iniciarMusicaAmbiente();
+  // Detener música de menú y empezar música de combate + motor
+  SoundManager.stop('bgm_main_menu');
+  SoundManager.play('bgm_combat_loop');
+  SoundManager.play('fx_bike_engine_loop');
 
   // Registrar los controles táctiles para móvil
   inicializarControlesTactiles(estadoJuego.jugadores);
@@ -441,8 +442,10 @@ function terminarJuego(ganador) {
     idAnimacion = null;
   }
 
-  // Detener música
-  if (sistemaAudio) sistemaAudio.detenerMusicaAmbiente();
+  // Detener sonidos de juego
+  SoundManager.stop('fx_bike_engine_loop');
+  SoundManager.stop('bgm_combat_loop');
+
   eliminarEventos();
 
   // Mostrar overlay de fin de partida
@@ -500,7 +503,8 @@ function abandonarPartida() {
     cancelAnimationFrame(idAnimacion);
     idAnimacion = null;
   }
-  if (sistemaAudio) sistemaAudio.detenerMusicaAmbiente();
+  SoundManager.stopAll();
+  SoundManager.play('bgm_main_menu');
   eliminarEventos();
   window.location.href = '/';
 }
@@ -541,6 +545,9 @@ function configurarSelectoresMoto() {
 
       // Soporte para teclado (Enter/Space activan el botón)
       btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          SoundManager.play('ui_navigate');
+        }
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           btn.click();
@@ -560,6 +567,12 @@ function configurarSelectoresMoto() {
         });
         btn.classList.add('seleccionado');
         btn.setAttribute('aria-pressed', 'true');
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          SoundManager.play('ui_navigate');
+        }
       });
     });
   }
