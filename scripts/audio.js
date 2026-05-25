@@ -8,6 +8,8 @@ const SoundManager = {
   BASE_PATH: '/sounds/',
   sounds: {},
   muted: false,
+  initialized: false,
+  lastPlayedBGM: null, // Para recordar qué música debería estar sonando
   
   // Volúmenes predeterminados según requisitos
   volumes: {
@@ -59,6 +61,34 @@ const SoundManager = {
       audio.preload = 'auto';
       this.sounds[key] = audio;
     }
+    
+    // Registrar el listener de interacción para desbloquear el audio
+    this.setupInteractionListener();
+  },
+
+  /**
+   * Configura un listener que se activa al primer clic/tecla para desbloquear el audio del navegador.
+   */
+  setupInteractionListener() {
+    const unlock = () => {
+      if (this.initialized) return;
+      this.initialized = true;
+      console.log('Audio desbloqueado por interacción del usuario');
+      
+      // Si había una música que debía estar sonando, intentamos reproducirla ahora
+      if (this.lastPlayedBGM) {
+        this.play(this.lastPlayedBGM);
+      }
+      
+      // Eliminar los listeners una vez desbloqueado
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('keydown', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+
+    document.addEventListener('click', unlock);
+    document.addEventListener('keydown', unlock);
+    document.addEventListener('touchstart', unlock);
   },
 
   /**
@@ -95,6 +125,7 @@ const SoundManager = {
     // Si es música, detener otras pistas de música primero (canal exclusivo)
     if (this.assets[name].type === 'bgm') {
       this.stopAllBGM();
+      this.lastPlayedBGM = name; // Recordar para reintento si falla
     }
 
     try {
@@ -104,13 +135,21 @@ const SoundManager = {
         clone.volume = sound.volume;
         const playPromise = clone.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => { /* Silenciar error de autoplay */ });
+          playPromise.catch(err => {
+            if (err.name === 'NotAllowedError') {
+              console.warn(`Autoplay bloqueado para ${name}. Esperando interacción.`);
+            }
+          });
         }
       } else {
         // Para BGM y loops, reproducir el objeto original
         const playPromise = sound.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => { /* Silenciar error de autoplay */ });
+          playPromise.catch(err => {
+            if (err.name === 'NotAllowedError') {
+              console.warn(`Autoplay bloqueado para BGM ${name}. Se reproducirá tras interacción.`);
+            }
+          });
         }
       }
     } catch (err) {
