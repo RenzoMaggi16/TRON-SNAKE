@@ -8,7 +8,7 @@ let ctxRef    = null;
 // Tiempo global para animaciones del fondo
 let tiempoRender = 0;
 
-// Constantes de renderizado
+// Constantes de renderizado globales
 const CONSTANTES_RENDER = {
   COLOR_FONDO:     '#050510',
   GROSOR_PARED:    4,
